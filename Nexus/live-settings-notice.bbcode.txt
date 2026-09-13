@@ -1,3 +1,13 @@
+[size=5][b][color=#E8C88A]Author's Notes[/color][/b][/size]
+
+[size=4][b][color=#E8C88A]Stutters[/color][/b][/size]
+Reports for stutters have been investigated and fixed in [b]1.2.1[/b].
+
+[size=4][b][color=#E8C88A]Forward Dodge Bug[/color][/b][/size]
+The forward dodge bug has been fixed. I did not realize the game did not treat forward dodge the same way it handles the other directions.
+
+I'm sorry about this, but the fix is now available in [b]1.2.2[/b].
+
 [size=4][b][color=#E8C88A]New: change settings while playing[/color][/b][/size]
 
 The latest update lets you change this mod’s settings [b]without reloading your save[/b]. Open [b][color=#A8D5C2]Mod Settings[/color][/b], make your changes and press [b][color=#A8D5C2]Apply[/color][/b] to use them straight away.
