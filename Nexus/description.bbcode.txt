@@ -24,13 +24,10 @@ Requires a Dawnwalker-compatible [b]UE4SS 3.x[/b] installation.
 
 [size=4][b][color=#E8C88A]Settings[/color][/b][/size]
 
+Mod Setting Menu 1.0.6+ is required. Apply saves changes and updates gameplay. Enable HookProcessConsoleExec = 1 in your Vortex-managed UE4SS configuration.
+
 Use [url=https://www.nexusmods.com/thebloodofdawnwalker/mods/271]Mod Setting Menu 1.0.6 or later[/url] from the main menu. Press Apply to save and update the active game. See SETTINGS.md (included with the mod) for all controls, first-use import and preference backups. Console settings commands are retired.
 
 [size=4][b][color=#E8C88A]Credits and source[/color][/b][/size]
 
 Created by [b]oOCamilleOo[/b]. Original mod code is under the MIT license (included with the mod); underlying game assets remain the property of their respective rights holders. Nexus listing materials are maintained separately in Nexus (included with the mod).
-
-
-[b]Live settings[/b]
-Mod Setting Menu 1.0.6+ is required. Settings are prepared at startup; Apply saves changes and updates gameplay. The loader must use HookProcessConsoleExec = 1, managed through your Vortex loader configuration.
-Parry timing, perfect-dodge timing and dodge while blocking update independently. Timing changes use retained original values; returning to 100% restores normal timing. Parry timing Off restores only the parry override. Queued changes share one bounded worker.

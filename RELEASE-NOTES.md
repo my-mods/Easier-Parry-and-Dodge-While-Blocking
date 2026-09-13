@@ -1,7 +1,7 @@
-# Easier Parry and Dodge While Blocking 1.2.3
+# Easier Parry and Dodge While Blocking 1.3.0
 
-Removes recurring parry checks.
-
-Adds an independent Perfect dodge window setting, adjustable from 10% to 5,000% of normal timing through the game's native combat settings. The default is 100%.
-
-Guard diagnostics stop retrying unavailable Blueprint hooks and retain native combat tracing across save loads. Native diagnostics now record dodge eligibility and commit results, animation selection, combat state, and explicit ability end/cancel calls.
+- Add Mod Setting Menu controls for parry timing and an independent Dodge while blocking toggle.
+- Add a separate Perfect dodge window setting from 10% to 5,000%, with normal timing as the default.
+- Apply timing and dodge settings during play without loading a save.
+- Restore parry settings after missed loading notifications or delayed player initialization.
+- Replace console settings commands with one settings menu and a single Logging switch.

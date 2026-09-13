@@ -5,7 +5,7 @@
     <modid>EasierParryUE4SS</modid>
     <description>Configurable parry timing with guard recovery after dodging and base-game attack behavior.</description>
     <author>oOCamilleOo</author>
-    <version>1.2.3</version>
+    <version>1.3.0</version>
     <created_on>2026-09-05</created_on>
   </info>
   <supports>
