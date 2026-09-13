@@ -1,7 +1,8 @@
 -- Read-only, event-driven held-guard diagnostics. MIT; see LICENSE.txt.
 local directory = assert(debug.getinfo(1,'S').source:gsub('^@',''):match('^(.*[/\\])'))
 local Hooks = dofile(directory .. 'UE4SSCommonHooks.lua')
-return function(log)
+return function(log,scheduleLater)
+    local scheduleCallback=scheduleLater or ExecuteInGameThreadWithDelay
     local hooks = Hooks.new({RegisterHook=RegisterHook,UnregisterHook=UnregisterHook})
     -- main.lua owns this table for the mod lifetime; sessions inherit it.
     -- Only strings/booleans belong here. A save load cannot repair host dispatch.
@@ -23,9 +24,9 @@ return function(log)
     -- Use one-shot callbacks and schedule another only while work remains.
     local function runUntilDone(delay, step)
         local function run()
-            if step() ~= true then ExecuteInGameThreadWithDelay(delay, run) end
+            if step() ~= true then scheduleCallback(delay, run) end
         end
-        ExecuteInGameThreadWithDelay(delay, run)
+        scheduleCallback(delay, run)
     end
 
     local function live(object)

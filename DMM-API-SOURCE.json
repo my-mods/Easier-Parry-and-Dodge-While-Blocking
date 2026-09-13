@@ -1,0 +1,32 @@
+{
+  "version": "1.0.6",
+  "url": "https://www.nexusmods.com/thebloodofdawnwalker/mods/271",
+  "file": "Integration Guide/example/Scripts/dmm_api.lua",
+  "sha256": "6bb667bffc543d1c5c1b36ab6da66c621d6c81c9ee46f94f0f6339cae9cc884c",
+  "permission": "Integration guide explicitly instructs authors to copy this helper unchanged.",
+  "integration": {
+    "minimumMenuVersion": "1.0.6",
+    "hookProcessConsoleExec": 1,
+    "lifetime": "One subscription in the persistent main script.",
+    "configuration": "Startup preparation and accepted save-load reads; no callback I/O.",
+    "commonCommit": "b51434dee720bc000090d4cf387d60f8f6be7e60",
+    "commonLock": "ue4ss-common.lock.json"
+  },
+  "runtimeSources": {
+    "package/Data/EasierParryUE4SS/Scripts/dmm_api.lua": "6bb667bffc543d1c5c1b36ab6da66c621d6c81c9ee46f94f0f6339cae9cc884c",
+    "package/Data/EasierParryUE4SS/Scripts/DodgeSettings.lua": "316ec83beb04afda2a1876c589aa45283af9b435611ef0e382bfbbafd50c3d31",
+    "package/Data/EasierParryUE4SS/Scripts/Gameplay.lua": "b9d78209568b316e8e4d3cd573a88acd918baae40e36afcab25489d392f68fe7",
+    "package/Data/EasierParryUE4SS/Scripts/GuardTrace.lua": "95f5aac3869069502a4a97035c50ace46686ecf67419612a0dd793885ad97215",
+    "package/Data/EasierParryUE4SS/Scripts/LiveSettings.lua": "9bc6f7a9134f2f15b9cd62d63d45519eb7d2ae2cb545289bd69485b23517792e",
+    "package/Data/EasierParryUE4SS/Scripts/main.lua": "5c9ab316f387ddf31023e71a829b0c43b55391e89161504f09f2ed3321332716",
+    "package/Data/EasierParryUE4SS/Scripts/ParrySettings.lua": "83e939b8d7d6a215a26890f0b0d21e9de2b2f2a88952679aa8a79e4e195ade6b",
+    "package/Data/EasierParryUE4SS/Scripts/SettingsModel.lua": "5198a8755d8b8cce6c9ef04846c48dd4ae400f7f49b21173836a2e54644aa519",
+    "package/Data/EasierParryUE4SS/Scripts/SettingsSchema.lua": "cd8cde9fd66eb074e7254ffb0c56f5a58d4175e9bf24aaadf7909f2821c699a2",
+    "package/Data/EasierParryUE4SS/Scripts/SettingsStore.lua": "db597ebcfbe67fd03aa16c3c2eb4129c346975961e4df0481bb70440aa7cfa26",
+    "package/Data/EasierParryUE4SS/Scripts/UE4SSCommonDiagnostics.lua": "a6c3de0fb908085654e967a0c38c388dd021d19af7fecc0bb0722a3ea1b20f0e",
+    "package/Data/EasierParryUE4SS/Scripts/UE4SSCommonHooks.lua": "723b8680903e75f64d44deaad432b90169e91e5f322d964aaedc4a6aaba4abea",
+    "package/Data/EasierParryUE4SS/Scripts/UE4SSCommonSession.lua": "924272d0246d73759ba57a6ed5f0feea319065a96119d7c9ff7248dd345a09a2",
+    "package/Data/EasierParryUE4SS/Scripts/UE4SSDawnwalkerSaveLoad.lua": "17e9cbb70326f536b14ba5512a46ac425e7e1446c90516e826b2092b30465707",
+    "package/Data/EasierParryUE4SS/Scripts/UE4SSDawnwalkerSettings.lua": "039b09679eafec2b19cd8f27e3033dec26a52484a7529edbf14f15193ba07ef1"
+  }
+}

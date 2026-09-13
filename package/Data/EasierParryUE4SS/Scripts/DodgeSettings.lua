@@ -46,10 +46,13 @@ local function write(object, enabled)
     assert(actual == enabled, 'Dodge activation tag write did not stick')
 end
 
-function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor)
+function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor, scheduleLater)
+    scheduleLater=scheduleLater or ExecuteInGameThreadWithDelay
+    local playerReady=SaveLoadContext and SaveLoadContext.pawn~=nil
     local componentClass, dodgeClass, combatClass
     local windowPending = windowFactor ~= 1
     local windowTargets = {}
+    local blockKeys,blockSeen,restoreCursor={},{},nil
     local ownerAddress, componentAddress, cursor = nil, nil, 1
     local pending, running, dirty, attempts, found = false, false, false, 0, false
     local lastFailure
@@ -75,7 +78,9 @@ function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor)
             local class = object:GetClass()
             return live(class) and class:GetAddress() == classAddress and object:GetFullName() == name
         end
-        Session.change('dodge-block:'..tostring(address), function()
+        local key='dodge-block:'..tostring(address)
+        if not blockSeen[key] then blockSeen[key]=true;blockKeys[#blockKeys+1]=key end
+        Session.change(key, function()
             if not valid() then return nil, false end
             local _, hasGuard = tags(object)
             return hasGuard
@@ -108,29 +113,38 @@ function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor)
         local baseline = get()
         if baseline == nil then return false end
         -- Repeated lifecycle events must not multiply an already adjusted asset.
-        local target = windowTargets[key]
-        if not target or math.abs(baseline-target)>1e-5*math.max(1,math.abs(target)) then
-            target = baseline*windowFactor
-            windowTargets[key] = target
-        end
+        local remembered = windowTargets[key]
+        if not remembered then remembered={base=baseline,last=baseline};windowTargets[key]=remembered
+        elseif math.abs(baseline-remembered.last)>1e-5*math.max(1,math.abs(remembered.last)) then remembered.base=baseline end
+        local target=remembered.base*windowFactor
         local changed = Session.change(key, get, function(value)
             local _, valid = get()
             assert(valid ~= false, 'Dodge timing config was replaced')
             settings.PerfectDodgeWindow = value
+            remembered.last=value
             return true
         end, target)
         if changed then diagnostics.debug('Perfect dodge window: x%.3f, %.4fs -> %.4fs', windowFactor, baseline, target) end
         return true
     end
     local function slice()
+        local started=os.clock()
         local player = resolvePlayer()
-        if not live(player) then return 'waiting' end
+        playerReady=live(player)
+        if not playerReady then return 'waiting' end
         if windowPending then
             if not patchWindow(player) then return 'waiting' end
             windowPending = false
             if blockDodge then return 'more' end -- Separate timing and ability discovery across frames.
         end
-        if not blockDodge then return 'done' end
+        if not blockDodge then
+            if restoreCursor and blockKeys[restoreCursor] then
+                Session.restore(blockKeys[restoreCursor]);restoreCursor=restoreCursor+1
+                return 'more'
+            end
+            restoreCursor=nil
+            return 'done'
+        end
         if not live(componentClass) then componentClass=StaticFindObject('/Script/GameplayAbilities.AbilitySystemComponent') end
         if not live(dodgeClass) then dodgeClass=StaticFindObject(CLASS) end
         if not live(componentClass) or not live(dodgeClass) then return 'waiting' end
@@ -143,7 +157,6 @@ function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor)
         -- Reacquire borrowed specs in every slice; keep only scalar cursors between frames.
         local items = component.ActivatableAbilities.Items
         assert(#items <= 512, 'Unexpected player ability count')
-        local started = os.clock()
         for unit=1,8 do
             if cursor > #items then return found and 'done' or 'waiting' end
             local spec = items[cursor]
@@ -167,7 +180,7 @@ function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor)
     schedule = function(delay)
         if pending then return end
         pending = true
-        ExecuteInGameThreadWithDelay(delay, run)
+        scheduleLater(delay, run)
     end
     local measuredSlice = diagnostics.wrap('dodgeSetup', slice)
     run = function()
@@ -184,7 +197,7 @@ function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor)
             failure('Player dodge settings not ready; will retry on the next lifecycle event')
             return
         end
-        if dirty then dirty=false; cursor=1; found=false; windowPending=windowFactor~=1; schedule(16); return end
+        if dirty then dirty=false; cursor=1; found=false; windowPending=windowFactor~=1 or next(windowTargets)~=nil; schedule(16); return end
         running=false; lastFailure=nil
         diagnostics.debug('Native dodge settings applied')
         diagnostics.flush(true)
@@ -192,12 +205,20 @@ function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor)
     local function wake()
         if running then dirty=true; return end
         running=true; dirty=false; attempts=0; cursor=1; found=false
-        windowPending=windowFactor~=1
+        windowPending=windowFactor~=1 or next(windowTargets)~=nil
         schedule(16)
     end
     -- Construction only schedules work. All reflection happens in registered game-thread callbacks.
-    local ok, err=pcall(NotifyOnNewObject, blockDodge and CLASS or '/Script/DogwoodCombat.PlayerCombatComponent', wake)
-    if not ok then failure('Ability notifications unavailable: '..tostring(err)) end
-    return wake
+    for _,path in ipairs({CLASS,'/Script/DogwoodCombat.PlayerCombatComponent'}) do
+        local ok,err=pcall(NotifyOnNewObject,path,wake)
+        if not ok then failure('Dodge notifications unavailable: '..tostring(err)) end
+    end
+    local function update(blocked,factor)
+        local changed=blockDodge~=blocked or windowFactor~=factor
+        blockDodge,windowFactor=blocked,factor
+        if not blocked and #blockKeys>0 then restoreCursor=1 end
+        if playerReady and (changed or not running) then wake() end
+    end
+    return wake,update
 end
 return M

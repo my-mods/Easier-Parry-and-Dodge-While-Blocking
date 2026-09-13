@@ -10,7 +10,7 @@ Makes parrying more forgiving in *The Blood of Dawnwalker*. Includes native guar
 [*][b][color=#A8D5C2]Perfect dodge window[/color][/b] is independently adjustable from [b]10% to 5,000%[/b] using the native timing check. Choose from the same 20 percentages as parry. [b]100%[/b] keeps normal timing and is the default; [b]200%[/b] doubles the window. Direction and attacker-distance requirements still apply.
 [*]Forward dodges use native state-change and timed completion to restore held guard. Failed or cancelled attempts release their input suppression.
 [*]Native guard handling uses gameplay events. Optional Lua diagnostics observe transitions without changing guard or bindings.
-[*]Parry and perfect-dodge timing load a fresh settings snapshot after save loading. There is no recurring timing checker or extra Lua callback per dodge.
+[*]Parry and perfect-dodge timing accept saved changes during play and load a fresh snapshot after save loading. There is no recurring timing checker or extra Lua callback per dodge.
 [/list]
 
 Requires a Dawnwalker-compatible [b]UE4SS 3.x[/b] installation.
@@ -24,8 +24,13 @@ Requires a Dawnwalker-compatible [b]UE4SS 3.x[/b] installation.
 
 [size=4][b][color=#E8C88A]Settings[/color][/b][/size]
 
-Use [url=https://www.nexusmods.com/thebloodofdawnwalker/mods/271]Mod Setting Menu 1.0.5 or later[/url] from the main menu. Press Apply, then load a save. See SETTINGS.md (included with the mod) for all controls, first-use import and preference backups. Console settings commands are retired.
+Use [url=https://www.nexusmods.com/thebloodofdawnwalker/mods/271]Mod Setting Menu 1.0.6 or later[/url] from the main menu. Press Apply to save and update the active game. See SETTINGS.md (included with the mod) for all controls, first-use import and preference backups. Console settings commands are retired.
 
 [size=4][b][color=#E8C88A]Credits and source[/color][/b][/size]
 
 Created by [b]oOCamilleOo[/b]. Original mod code is under the MIT license (included with the mod); underlying game assets remain the property of their respective rights holders. Nexus listing materials are maintained separately in Nexus (included with the mod).
+
+
+[b]Live settings[/b]
+Mod Setting Menu 1.0.6+ is required. Settings are prepared at startup; Apply saves changes and updates gameplay. The loader must use HookProcessConsoleExec = 1, managed through your Vortex loader configuration.
+Parry timing, perfect-dodge timing and dodge while blocking update independently. Timing changes use retained original values; returning to 100% restores normal timing. Parry timing Off restores only the parry override. Queued changes share one bounded worker.

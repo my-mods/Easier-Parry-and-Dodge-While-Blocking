@@ -1,10 +1,10 @@
 # Settings
 
-Install [Mod Setting Menu 1.0.5 or later](https://www.nexusmods.com/thebloodofdawnwalker/mods/271) and UE4SS through Vortex. On first use, load a save once to initialize the settings file, then return to Main Menu > Mod Settings > All Mods. Select this mod, change settings and press Apply. **Load a save after Apply.** Restore discards unapplied changes; Reset selects this mod’s defaults.
+Install [Mod Setting Menu 1.0.6 or later](https://www.nexusmods.com/thebloodofdawnwalker/mods/271) and UE4SS through Vortex. Settings are prepared at startup. Open Main Menu > Mod Settings > All Mods before or after loading a save. Select this mod, change settings and press Apply. **Apply updates the active game.** Restore discards unapplied changes; Reset selects this mod’s defaults.
 
 The stable menu ID is `oOCamilleOo_EasierParryAndDodgeWhileBlocking`. The mod generates `settings.ini` beside `mod_settings.ini` in its UE4SS folder. That file stores the active preferences and is not shipped in the archive. Supported legacy preferences are imported on first use.
 
-Missing, duplicate or invalid settings stop configuration loading and are reported in `Dawnwalker/Binaries/Win64/ue4ss/UE4SS.log`. Preserve the file before correcting it. If a menu save fails, preserve its temporary/backup files and follow the menu’s recovery instructions. Settings are read only when a save loads. Waiting at the main menu performs no settings work; travel and possession events use the current snapshot. Settings are never polled. `debugLogging` controls additional diagnostic logging; it defaults to Off.
+Missing, duplicate or invalid settings stop configuration loading and are reported in `Dawnwalker/Binaries/Win64/ue4ss/UE4SS.log`. Preserve the file before correcting it. If a menu save fails, preserve its temporary/backup files and follow the menu’s recovery instructions. Settings files are read at startup and save-load boundaries; menu callbacks use committed values without file I/O. After startup preparation, waiting at the main menu performs no settings work; travel and possession events use the current snapshot. Settings are never polled. `debugLogging` controls additional diagnostic logging; it defaults to Off.
 
 | Group | Setting | Choices or range |
 | --- | --- | --- |
@@ -20,11 +20,11 @@ Missing, duplicate or invalid settings stop configuration loading and are report
 
 Reset restores the 200% default. For manual INI edits, `parryWindowPercent` accepts values from 10 to 5000. Gameplay accepts values between the menu choices; opening the menu page requires one of the listed values.
 
-**Dodge while blocking:** On keeps the mod's dodge and guard recovery behavior. Off blocks the player's dodge ability while the block input is held. Release block to dodge. This control remains available when Parry timing adjustment is Off. Press Apply, then load a save. It uses the game's native ability activation check; it does not poll inputs or settings.
+**Dodge while blocking:** On keeps the mod's dodge and guard recovery behavior. Off blocks the player's dodge ability while the block input is held. Release block to dodge. This control remains available when Parry timing adjustment is Off. Press Apply to save and update the active game. It uses the game's native ability activation check; it does not poll inputs or settings.
 
-**Perfect dodge window:** Uses the same 20 percentages listed above. **100%** keeps the game's normal timing and is the default; **200%** doubles the time before an incoming hit in which a dodge can qualify as perfect or ultra. The game's direction and attacker-distance requirements still apply. This control remains available regardless of Parry timing adjustment and Dodge while blocking. It changes the native perfect-dodge timing check; invulnerability duration, animation speed, stamina costs and dodge activation restrictions keep their existing behavior. Press Apply, then load a save.
+**Perfect dodge window:** Uses the same 20 percentages listed above. **100%** keeps the game's normal timing and is the default; **200%** doubles the time before an incoming hit in which a dodge can qualify as perfect or ultra. The game's direction and attacker-distance requirements still apply. This control remains available regardless of Parry timing adjustment and Dodge while blocking. It changes the native perfect-dodge timing check; invulnerability duration, animation speed, stamina costs and dodge activation restrictions keep their existing behavior. Press Apply to save and update the active game.
 
-For manual edits, close the game and change `dodgeWindowPercent` in the generated `settings.ini` (10 to 5000). Values between menu presets work in gameplay; the menu requires a listed value. Existing settings receive the new 100% default on the next save load, with the previous file retained as `settings.ini.before-dodge-window`.
+For manual edits, close the game and change `dodgeWindowPercent` in the generated `settings.ini` (10 to 5000). Values between menu presets work in gameplay; the menu requires a listed value. Existing settings receive the new 100% default at startup, with the previous file retained as `settings.ini.before-dodge-window`.
 
 Console commands are not used to change settings.
 
@@ -44,3 +44,11 @@ These events restore decision details without requiring Blueprint hooks. They do
 The trace is read-only, filters exact ability classes and local player contexts, and uses bounded event/snapshot/output budgets. It does not retry inputs, call eligibility/commit functions to obtain diagnostic results, retain borrowed return structs, scan for objects during events, or add an idle polling worker. Actually unloaded Blueprint functions retain finite retries after relevant construction events. Restart the game after changing the loader profile to check its capabilities again.
 
 Trace output is limited to 2,048 records per save-load capture. Load a save for a new capture. Logging Off disables diagnostic capture and pending trace work without changing parry timing or dodge behavior.
+
+## Live Apply
+
+Mod Setting Menu 1.0.6 or later is required. Its callback bridge also requires `HookProcessConsoleExec = 1` in `UE4SS-settings.ini`. Manage that loader setting through your Vortex loader configuration; this archive contains no replacement global UE4SS INI.
+
+Settings are prepared when the game starts and are available from the main menu before the first save. Press **Apply** to save and update the active game. Changes made while loading are retained for the next valid player. Restore and Discard leave saved settings unchanged; Reset takes effect after Apply.
+
+Parry timing, perfect-dodge timing and dodge while blocking update independently. Timing changes use retained original values; returning to 100% restores normal timing. Parry timing Off restores only the parry override. Queued changes share one bounded worker.

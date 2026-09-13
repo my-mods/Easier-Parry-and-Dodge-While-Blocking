@@ -22,6 +22,7 @@ local config = {
 }
 
 local active = nil
+local playerReady = SaveLoadContext and SaveLoadContext.pawn~=nil
 local engine, gameplayStatics = nil, nil
 local bootstrapAttempted = false
 local SetGuardTracing
@@ -33,99 +34,12 @@ local diagnostics = Diagnostics.new({prefix='['..MOD_NAME..'] ',output=function(
 local function Log(message, ...) diagnostics.log(message, ...) end
 local function Debug(message, ...) diagnostics.debug(message, ...) end
 
-local function Trim(value)
-    return (tostring(value or ""):gsub("^%s+", ""):gsub("%s+$", ""))
-end
-
-local function ParseBoolean(value)
-    local lower = string.lower(Trim(value))
-    if lower == "true" or lower == "yes" or lower == "on" or lower == "1" then return true end
-    if lower == "false" or lower == "no" or lower == "off" or lower == "0" then return false end
-    return nil
-end
-
-local function ScriptIniPath(name)
-    local source = (SCRIPT_SOURCE or ""):gsub("^@", "")
-    local directory = string.match(source, "^(.*)[/\\][^/\\]*$")
-    if directory ~= nil and directory ~= "" then return directory .. "/" .. name end
-    return "ue4ss/Mods/" .. MOD_NAME .. "/Scripts/" .. name
-end
-
-local function IniPath()
-    local directory = os.getenv("LOCALAPPDATA")
-    if not directory or not (directory:match("^%a:[/\\]") or directory:match("^\\\\")) then return nil end
-    return directory:gsub("[/\\]+$", "") .. "/Dawnwalker/Saved/Config/" .. INI_NAME
-end
-
-local function ReadIni(path)
-    local file, err, code = io.open(path, "rb")
-    if not file then return nil, err, code end
-    local contents, readError = file:read("*a")
-    file:close()
-    return contents, readError
-end
-
-local function ApplyIni(contents, path)
-    -- Editors may save a UTF-8 BOM before the first section header.
-    contents = contents:gsub("^\239\187\191", "")
-    local section, seen = "", {}
-    for line in contents:gmatch("[^\r\n]+") do
-        local clean = Trim((line:gsub("[;#].*$", "")))
-        local sectionName = string.match(clean, "^%[([^%]]+)%]$")
-        if sectionName ~= nil then
-            section = string.lower(Trim(sectionName))
-        elseif section == "general" and clean ~= "" then
-            local key, value = string.match(clean, "^([%w_]+)%s*=%s*(.-)%s*$")
-            if key ~= nil then
-                key = string.lower(key)
-                if seen[key] then return false end
-                seen[key] = true
-                if key == "enabled" or key == "debuglogging" or key == "dodgeinterruptsguard" then
-                    local parsed = ParseBoolean(value)
-                    if parsed == nil then return false end
-                    if parsed ~= nil then
-                        local field = ({enabled="enabled", debuglogging="debugLogging", dodgeinterruptsguard="dodgeInterruptsGuard"})[key]
-                        config[field] = parsed
-                    end
-                elseif key == "factor" or key == "pollmilliseconds" then
-                    local parsed = tonumber(value)
-                    if parsed == nil or parsed ~= parsed or math.abs(parsed) == math.huge then
-                        Log("WARNING: invalid %s in %s; import stopped", key, path)
-                        return false
-                    elseif key == "factor" then
-                        config.factor = math.max(0.1, math.min(50.0, parsed))
-                    else
-                        config.pollMilliseconds = math.floor(math.max(100, math.min(5000, parsed)))
-                    end
-                end
-            end
-        end
-    end
-    Log("Loaded configuration from %s (factor=%.3f, enabled=%s)", path, config.factor, tostring(config.enabled))
-    return true
-end
-
+local function ScriptIniPath(name) return scriptDirectory..name end
+local SettingsModel=dofile(scriptDirectory..'SettingsModel.lua')
 local function LoadConfig()
-    local directory = ScriptIniPath(''):gsub('[^/\\]*$', '')
-    local Store = dofile(directory .. 'ParrySettings.lua')
-    local schema = dofile(directory .. 'SettingsSchema.lua')
-    local values, err = Store.load(directory, schema, function()
-        local defaults, de = ReadIni(ScriptIniPath(DEFAULTS_NAME))
-        if not defaults then return nil, de end
-        if not ApplyIni(defaults, DEFAULTS_NAME) then return nil, "Invalid legacy defaults" end
-        local path = IniPath()
-        if not path then return nil, 'LOCALAPPDATA unavailable for legacy migration' end
-        local personal, pe, pc = ReadIni(path)
-        if not personal and pc == 2 then path = ScriptIniPath(INI_NAME); personal, pe, pc = ReadIni(path) end
-        if not personal and pc ~= 2 then return nil, pe end
-        if personal and not ApplyIni(personal, path) then return nil, "Invalid legacy INI; original left unchanged" end
-        return {enabled=config.enabled and 1 or 0, parryWindowPercent=config.factor*100, debugLogging=config.debugLogging and 1 or 0},
-            nil, personal and {{path=path, text=personal}} or nil
-    end)
-    if not values then Log('Settings rejected: %s', tostring(err)); return false end
-    config.enabled=values.enabled==1;config.factor=values.parryWindowPercent/100;config.debugLogging=values.debugLogging==1
-    config.dodgeWhileBlocking=values.dodgeWhileBlocking==1
-    config.dodgeWindowFactor=values.dodgeWindowPercent/100
+    local values=SaveLoadContext.settings or SettingsModel.load()
+    if not values then return false end
+    config=SettingsModel.convert(values)
     return true
 end
 
@@ -212,9 +126,12 @@ local function WriteAttribute(attributeSet, base, current, kind)
     if not IsLive(attributeSet) then return false, "attribute owner is not live" end
     local ok = WriteWithReflection(attributeSet, base, current, kind)
     if not ok then ok = WriteDirect(attributeSet, base, current, kind) end
-    if not ok then return false, "both reflection and direct writes failed" end
-
     local actualBase, actualCurrent = ReadAttribute(attributeSet)
+    if active and active.attributeSet==attributeSet then
+        if NearlyEqual(actualBase,base) then active.lastBase=actualBase end
+        if NearlyEqual(actualCurrent,current) then active.lastCurrent=actualCurrent end
+    end
+    if not ok then return false, "both reflection and direct writes failed" end
     if not NearlyEqual(actualBase, base) or not NearlyEqual(actualCurrent, current) then
         return false, string.format(
             "write did not stick (wanted %.4f/%.4f, read %s/%s)",
@@ -228,6 +145,7 @@ local function WriteAttribute(attributeSet, base, current, kind)
 end
 
 local function FindPlayerAttributeSet()
+    playerReady=false
     -- Discover once per live engine/CDO lifetime; readiness events can recover
     -- missing objects without a timer or a permanently exhausted attempt budget.
     if not bootstrapAttempted or not IsLive(engine) or not IsLive(gameplayStatics) then
@@ -256,6 +174,7 @@ local function FindPlayerAttributeSet()
     if not IsLive(attributeSet) then
         return player, nil, "waiting for the player's CharDevAttributeSet"
     end
+    playerReady=true
     return player, attributeSet, nil
 end
 
@@ -273,8 +192,8 @@ local function RestoreBaseline()
     -- Do not overwrite a value recalculated by the game while we were detached.
     local base, current = ReadAttribute(active.attributeSet)
     if base == nil then active = nil; return end
-    local restoredBase = NearlyEqual(base, active.targetBase) and active.baselineBase or base
-    local restoredCurrent = NearlyEqual(current, active.targetCurrent) and active.baselineCurrent or current
+    local restoredBase = NearlyEqual(base, active.lastBase) and active.baselineBase or base
+    local restoredCurrent = NearlyEqual(current, active.lastCurrent) and active.baselineCurrent or current
     if NearlyEqual(base, restoredBase) and NearlyEqual(current, restoredCurrent) then
         active = nil
         return
@@ -338,7 +257,7 @@ local function RecordFailure(reason)
 end
 
 local function Poll()
-    if not config.enabled then return "disabled" end
+    if not config.enabled then RestoreBaseline(); return "disabled" end
 
     local player, attributeSet, reason = FindPlayerAttributeSet()
     if attributeSet == nil then
@@ -365,6 +284,8 @@ local function Poll()
         RecordFailure(reason)
         return "error"
     end
+    active.targetBase=active.baselineBase*config.factor
+    active.targetCurrent=active.baselineCurrent*config.factor
     if not NearlyEqual(base, active.targetBase) or not NearlyEqual(current, active.targetCurrent) then
         local repaired, repairReason = WriteAttribute(
             attributeSet,
@@ -404,7 +325,7 @@ local function PerfReport(label, now, automatic)
         perf.worstPhase, perf.slow, perf.queueMax, perf.attach, perf.repair,
         perf.waiting, perf.errors, perf.lastError)
     if automatic and perf.reports == PERF_REPORT_LIMIT then
-        Log("PERF automatic output limit reached; change debugLogging in Mod Settings and load a save for a new capture")
+        Log("PERF automatic output limit reached; toggle Logging in Mod Settings for a new capture")
     end
 end
 
@@ -451,26 +372,59 @@ local function Tick()
 end
 
 if not LoadConfig() then return end
-diagnostics = Diagnostics.new({debugLogging=config.debugLogging,prefix='['..MOD_NAME..'] ',
+diagnostics = Diagnostics.new({mutable=true,debugLogging=config.debugLogging,prefix='['..MOD_NAME..'] ',
     output=function(text) print(text..'\n') end,slowCallbackMs=5})
 if type(ExecuteInGameThreadWithDelay)~='function' or type(CancelDelayedAction)~='function' then
     Log('Readiness requires game-thread one-shot scheduling and cancellation.'); return
 end
 Session.onClose(RestoreBaseline)
-local dodgeReady
+-- All settings phases share one bounded one-shot worker. A native phase is
+-- indivisible; after it returns the next phase always yields at least 16 ms.
+local settingsJobs,settingsOrder,settingsTimer,dispatching={},{},false,false
+local dispatchSettings, scheduleSettings
+local function enqueueSettings(key,delay,fn)
+    if not settingsJobs[key] then
+        settingsJobs[key]={delay=delay,run=fn};settingsOrder[#settingsOrder+1]=key
+    end
+    if not dispatching then scheduleSettings() end
+end
+scheduleSettings=function()
+    local job=settingsJobs[settingsOrder[1]]
+    if job and not settingsTimer then
+        settingsTimer=true
+        ExecuteInGameThreadWithDelay(job.delay,dispatchSettings)
+    end
+end
+dispatchSettings=function()
+    settingsTimer=false
+    local key=table.remove(settingsOrder,1)
+    local job=key and settingsJobs[key]
+    if not job then return end
+    settingsJobs[key]=nil;dispatching=true
+    local ok,err=pcall(job.run)
+    dispatching=false
+    if not ok then RecordFailure(tostring(err)) end
+    scheduleSettings()
+end
+local function scheduleDodge(delay,fn) enqueueSettings('dodge',delay,fn) end
+local function scheduleTrace(delay,fn) enqueueSettings(fn,delay,fn) end
+local dodgeReady,updateDodge
 if not config.dodgeWhileBlocking or config.dodgeWindowFactor ~= 1 then
-    dodgeReady = dofile(scriptDirectory..'DodgeSettings.lua').start(FindPlayerAttributeSet, Log, diagnostics,
-        not config.dodgeWhileBlocking, config.dodgeWindowFactor)
+    dodgeReady,updateDodge = dofile(scriptDirectory..'DodgeSettings.lua').start(FindPlayerAttributeSet, Log, diagnostics,
+        not config.dodgeWhileBlocking, config.dodgeWindowFactor,scheduleDodge)
 end
 local pending = false
-local function applyReady()
-    if dodgeReady then dodgeReady() end
-    if pending or not config.enabled then return end
+local function scheduleParry()
+    if pending then return end
     pending = true
-    ExecuteInGameThreadWithDelay(16, function()
+    enqueueSettings('parry',16,function()
         pending = false
         Tick()
     end)
+end
+local function applyReady()
+    if dodgeReady then dodgeReady() end
+    if config.enabled then scheduleParry() end
 end
 RegisterHook('/Script/Engine.PlayerController:ClientRestart', function() end, applyReady)
 NotifyOnNewObject('/Script/DogwoodStats.CharDevAttributeSet', applyReady)
@@ -486,12 +440,47 @@ SetGuardTracing = function(enabled)
         if guardTraceControl then
             guardTraceControl(enabled)
         elseif enabled then
-            guardTraceControl = dofile(ScriptIniPath("GuardTrace.lua"))(Log)
+            guardTraceControl = dofile(ScriptIniPath("GuardTrace.lua"))(Log,scheduleTrace)
         end
     end)
     if not ok then Log("GuardTrace failed: %s", tostring(err)) end
 end
 SetGuardTracing(config.debugLogging)
+local loggingPending,dodgeCreatePending=false,false
+Session.onSettings(function(values,changes)
+    local previous=config
+    config=SettingsModel.convert(values)
+    if previous.debugLogging~=config.debugLogging then
+        diagnostics.setEnabled(config.debugLogging)
+        perf,queuedAt=nil,nil
+        -- Disabling existing trace guards is scalar-only and takes effect now.
+        if not config.debugLogging and guardTraceControl then guardTraceControl(false) end
+        -- Trace registration may touch reflection: use the existing bounded job.
+        if not loggingPending then
+            loggingPending=true
+            enqueueSettings('logging',16,function() loggingPending=false;SetGuardTracing(config.debugLogging) end)
+        end
+    end
+    if previous.enabled~=config.enabled or previous.factor~=config.factor then
+        if playerReady or pending then scheduleParry() end
+    end
+    if previous.dodgeWhileBlocking~=config.dodgeWhileBlocking or previous.dodgeWindowFactor~=config.dodgeWindowFactor then
+        if not updateDodge then
+            if not playerReady then return end
+            if dodgeCreatePending then return end
+            dodgeCreatePending=true
+            -- Creating the worker installs its two finite lifecycle subscriptions.
+            enqueueSettings('createDodge',16,function()
+                dodgeCreatePending=false
+                if not updateDodge then
+                    dodgeReady,updateDodge=dofile(scriptDirectory..'DodgeSettings.lua').start(FindPlayerAttributeSet,Log,diagnostics,
+                        not config.dodgeWhileBlocking,config.dodgeWindowFactor,scheduleDodge)
+                end
+                updateDodge(not config.dodgeWhileBlocking,config.dodgeWindowFactor)
+            end)
+        else updateDodge(not config.dodgeWhileBlocking,config.dodgeWindowFactor) end
+    end
+end)
 
 applyReady()
-Log("Loaded (enabled=%s, factor=%.3f, debug=%s). Use Mod Settings, Apply, then load a save.", tostring(config.enabled), config.factor, tostring(config.debugLogging))
+Log("Loaded (enabled=%s, factor=%.3f, debug=%s). Use Mod Settings and Apply to update gameplay.", tostring(config.enabled), config.factor, tostring(config.debugLogging))

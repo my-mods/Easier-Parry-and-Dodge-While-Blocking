@@ -29,5 +29,10 @@
   "sourceUrl": "https://github.com/my-mods/Easier-Parry-and-Dodge-While-Blocking",
   "nexusModId": 161,
   "nexusFileId": null,
-  "license": "MIT"
+  "license": "MIT",
+  "liveSettings": {
+    "minimumMenuVersion": "1.0.6",
+    "HookProcessConsoleExec": 1,
+    "apply": "Committed values update gameplay through bounded workers."
+  }
 }
