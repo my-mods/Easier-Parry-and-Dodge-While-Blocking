@@ -1,5 +1,5 @@
--- MIT. Save-load configuration of the player's native dodge activation rule.
--- No input hooks, global ability scans, or recurring work. Defaults stay untouched.
+-- MIT. Save-load configuration of native dodge timing and activation rules.
+-- No input hooks, global ability scans, or recurring work.
 local M = {}
 local CLASS = '/Game/_Dawnwalker/Combat/Abilities/Dodge/GA_Dodge.GA_Dodge_C'
 local GUARD = 'Player.Input.Block'
@@ -46,8 +46,10 @@ local function write(object, enabled)
     assert(actual == enabled, 'Dodge activation tag write did not stick')
 end
 
-function M.start(resolvePlayer, log, diagnostics)
-    local componentClass, dodgeClass
+function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor)
+    local componentClass, dodgeClass, combatClass
+    local windowPending = windowFactor ~= 1
+    local windowTargets = {}
     local ownerAddress, componentAddress, cursor = nil, nil, 1
     local pending, running, dirty, attempts, found = false, false, false, 0, false
     local lastFailure
@@ -55,7 +57,7 @@ function M.start(resolvePlayer, log, diagnostics)
     local function failure(message)
         if message ~= lastFailure then
             lastFailure = message
-            log('Dodge while blocking setting: %s', message)
+            log('Dodge settings: %s', message)
         end
     end
     local function patch(object, player)
@@ -84,12 +86,54 @@ function M.start(resolvePlayer, log, diagnostics)
         end, true)
         return true
     end
+    local function patchWindow(player)
+        if not live(combatClass) then combatClass=StaticFindObject('/Script/DogwoodCombat.PlayerCombatComponent') end
+        if not live(combatClass) then return false end
+        local combat = player:GetComponentByClass(combatClass)
+        if not live(combat) then return false end
+        -- GetConfig returns the native config UObject, not a borrowed struct.
+        -- GA_Dodge reads this float for its existing perfect/ultra-dodge check.
+        local settings = combat:GetConfig()
+        if not live(settings) or settings:HasAnyFlags(0x1B630) then return false end
+        local name, classAddress = settings:GetFullName(), settings:GetClass():GetAddress()
+        local key = 'dodge-window:'..tostring(settings:GetAddress())..':'..name
+        local function get()
+            if not live(settings) or settings:HasAnyFlags(0x18000) then return nil, false end
+            local class = settings:GetClass()
+            if not live(class) or class:GetAddress() ~= classAddress or settings:GetFullName() ~= name then return nil, false end
+            local value = settings.PerfectDodgeWindow
+            assert(type(value)=='number' and value>=0 and value<math.huge, 'Invalid native PerfectDodgeWindow')
+            return value
+        end
+        local baseline = get()
+        if baseline == nil then return false end
+        -- Repeated lifecycle events must not multiply an already adjusted asset.
+        local target = windowTargets[key]
+        if not target or math.abs(baseline-target)>1e-5*math.max(1,math.abs(target)) then
+            target = baseline*windowFactor
+            windowTargets[key] = target
+        end
+        local changed = Session.change(key, get, function(value)
+            local _, valid = get()
+            assert(valid ~= false, 'Dodge timing config was replaced')
+            settings.PerfectDodgeWindow = value
+            return true
+        end, target)
+        if changed then diagnostics.debug('Perfect dodge window: x%.3f, %.4fs -> %.4fs', windowFactor, baseline, target) end
+        return true
+    end
     local function slice()
+        local player = resolvePlayer()
+        if not live(player) then return 'waiting' end
+        if windowPending then
+            if not patchWindow(player) then return 'waiting' end
+            windowPending = false
+            if blockDodge then return 'more' end -- Separate timing and ability discovery across frames.
+        end
+        if not blockDodge then return 'done' end
         if not live(componentClass) then componentClass=StaticFindObject('/Script/GameplayAbilities.AbilitySystemComponent') end
         if not live(dodgeClass) then dodgeClass=StaticFindObject(CLASS) end
         if not live(componentClass) or not live(dodgeClass) then return 'waiting' end
-        local player = resolvePlayer()
-        if not live(player) then return 'waiting' end
         local component = player:GetComponentByClass(componentClass)
         if not live(component) then return 'waiting' end
         local pawnId, componentId = player:GetAddress(), component:GetAddress()
@@ -137,21 +181,22 @@ function M.start(resolvePlayer, log, diagnostics)
             attempts=attempts+1; cursor=1; found=false
             if attempts < 20 then schedule(100); return end
             running=false
-            failure('Player dodge ability not ready; will retry on its next lifecycle event')
+            failure('Player dodge settings not ready; will retry on the next lifecycle event')
             return
         end
-        if dirty then dirty=false; cursor=1; found=false; schedule(16); return end
+        if dirty then dirty=false; cursor=1; found=false; windowPending=windowFactor~=1; schedule(16); return end
         running=false; lastFailure=nil
-        diagnostics.debug('Dodge while blocking disabled through native activation tags')
+        diagnostics.debug('Native dodge settings applied')
         diagnostics.flush(true)
     end
     local function wake()
         if running then dirty=true; return end
         running=true; dirty=false; attempts=0; cursor=1; found=false
+        windowPending=windowFactor~=1
         schedule(16)
     end
     -- Construction only schedules work. All reflection happens in registered game-thread callbacks.
-    local ok, err=pcall(NotifyOnNewObject, CLASS, wake)
+    local ok, err=pcall(NotifyOnNewObject, blockDodge and CLASS or '/Script/DogwoodCombat.PlayerCombatComponent', wake)
     if not ok then failure('Ability notifications unavailable: '..tostring(err)) end
     return wake
 end

@@ -11,6 +11,7 @@ Missing, duplicate or invalid settings stop configuration loading and are report
 | General | Parry timing adjustment | Off, On |
 | Parry | Parry window | 20 percentage choices from 10% to 5,000% |
 | Dodge | Dodge while blocking | Off, On (default) |
+| Dodge | Perfect dodge window | 20 percentage choices from 10% to 5,000%; default 100% |
 | Diagnostics | Logging | Off, On |
 
 **Parry window presets:** 10%, 25%, 50%, 75%, 100%, 125%, 150%, 175%, 200%, 250%, 300%, 400%, 500%, 750%, 1,000%, 1,500%, 2,000%, 3,000%, 4,000%, and 5,000%. The spacing keeps smaller adjustments close together and reaches large windows quickly.
@@ -20,6 +21,10 @@ Missing, duplicate or invalid settings stop configuration loading and are report
 Reset restores the 200% default. For manual INI edits, `parryWindowPercent` accepts values from 10 to 5000. Gameplay accepts values between the menu choices; opening the menu page requires one of the listed values.
 
 **Dodge while blocking:** On keeps the mod's dodge and guard recovery behavior. Off blocks the player's dodge ability while the block input is held. Release block to dodge. This control remains available when Parry timing adjustment is Off. Press Apply, then load a save. It uses the game's native ability activation check; it does not poll inputs or settings.
+
+**Perfect dodge window:** Uses the same 20 percentages listed above. **100%** keeps the game's normal timing and is the default; **200%** doubles the time before an incoming hit in which a dodge can qualify as perfect or ultra. The game's direction and attacker-distance requirements still apply. This control remains available regardless of Parry timing adjustment and Dodge while blocking. It changes the native perfect-dodge timing check; invulnerability duration, animation speed, stamina costs and dodge activation restrictions keep their existing behavior. Press Apply, then load a save.
+
+For manual edits, close the game and change `dodgeWindowPercent` in the generated `settings.ini` (10 to 5000). Values between menu presets work in gameplay; the menu requires a listed value. Existing settings receive the new 100% default on the next save load, with the previous file retained as `settings.ini.before-dodge-window`.
 
 Console commands are not used to change settings.
 

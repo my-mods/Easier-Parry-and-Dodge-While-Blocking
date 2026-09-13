@@ -1,5 +1,7 @@
 ## Unreleased
 
+- Add an independent Perfect dodge window percentage setting using the game's native timing check, with normal timing as the default.
+
 - Add native dodge eligibility/commit results, animation selection, combat-state snapshots and explicit ability end/cancel diagnostics when Blueprint tracing is unavailable.
 
 - Stop repeated Blueprint diagnostic hook failures when the Lua dispatcher is unavailable, while preserving native combat tracing across save loads.

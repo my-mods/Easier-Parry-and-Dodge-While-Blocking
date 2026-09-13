@@ -8,9 +8,10 @@ Makes parrying more forgiving in *The Blood of Dawnwalker*. Includes native guar
 - Keeps held guard available after a dodge, using the game's native ability lifecycle. Attack inputs retain the base game’s guard behavior.
 - Temporarily lowers guard for a dodge and resumes when the game's combat rules allow it. Actual guard release and ability cancellation still end guarding.
 - **Dodge while blocking** can be turned Off in Mod Settings independently of parry timing. It defaults to On; Off blocks the player's dodge ability while block is held.
+- **Perfect dodge window** is independently adjustable from **10% to 5,000%**, with the same 20 percentage choices as parry. It defaults to **100%** (normal timing); **200%** doubles the native timing window.
 - Forward dodges use native state-change and timed completion to restore held guard. Failed or cancelled attempts release their input suppression.
 - Native guard handling uses gameplay events. Optional Lua diagnostics observe transitions without changing guard or bindings.
-- Parry timing loads a fresh settings snapshot after save loading. There is no recurring timing checker.
+- Parry and perfect-dodge timing load a fresh settings snapshot after save loading. The game handles dodge timing through its native combat settings, with no recurring timing checker or extra Lua callback per dodge.
 
 Requires a Dawnwalker-compatible **UE4SS 3.x** installation. The archive includes both the dodge asset and the parry timing script.
 

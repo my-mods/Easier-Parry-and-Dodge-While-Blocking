@@ -17,6 +17,7 @@ local config = {
     pollMilliseconds = 1000, -- Accepted for old INIs; unused (no periodic checks).
     debugLogging = false,
     dodgeWhileBlocking = true,
+    dodgeWindowFactor = 1.0,
     dodgeInterruptsGuard = false, -- Legacy INI compatibility; native guard assets own this behavior.
 }
 
@@ -124,6 +125,7 @@ local function LoadConfig()
     if not values then Log('Settings rejected: %s', tostring(err)); return false end
     config.enabled=values.enabled==1;config.factor=values.parryWindowPercent/100;config.debugLogging=values.debugLogging==1
     config.dodgeWhileBlocking=values.dodgeWhileBlocking==1
+    config.dodgeWindowFactor=values.dodgeWindowPercent/100
     return true
 end
 
@@ -456,8 +458,9 @@ if type(ExecuteInGameThreadWithDelay)~='function' or type(CancelDelayedAction)~=
 end
 Session.onClose(RestoreBaseline)
 local dodgeReady
-if not config.dodgeWhileBlocking then
-    dodgeReady = dofile(scriptDirectory..'DodgeSettings.lua').start(FindPlayerAttributeSet, Log, diagnostics)
+if not config.dodgeWhileBlocking or config.dodgeWindowFactor ~= 1 then
+    dodgeReady = dofile(scriptDirectory..'DodgeSettings.lua').start(FindPlayerAttributeSet, Log, diagnostics,
+        not config.dodgeWhileBlocking, config.dodgeWindowFactor)
 end
 local pending = false
 local function applyReady()

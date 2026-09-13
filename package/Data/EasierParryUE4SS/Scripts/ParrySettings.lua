@@ -70,9 +70,9 @@ local function loadTiming(directory, schema, seed)
     return values
 end
 
-function M.load(directory, schema, seed)
+local function loadAdded(directory, schema, seed, key, suffix, previous)
     local Store = dofile(directory..'SettingsStore.lua')
-    local path, suffix = Store.path(directory), '.before-dodge-setting'
+    local path = Store.path(directory)
     local text, err, code = Store.read(path)
     if not text then
         if code ~= 2 then return nil, err end
@@ -80,42 +80,53 @@ function M.load(directory, schema, seed)
             local data, e, c = Store.read(name)
             if data or c ~= 2 then return nil, 'Recover '..name..': '..tostring(e or '') end
         end
-        return loadTiming(directory, schema, seed)
+        return previous(directory, schema, seed)
     end
     local values, parseError = Store.parse(text, schema)
     if values then return values end
-    if parseError ~= 'Missing setting: dodgeWhileBlocking'
-        and parseError ~= 'Missing setting: parryWindowPercent' then return nil, parseError end
-    -- Validate an existing dodge preference before any older timing conversion.
-    local dodgeSchema = {{key='dodgeWhileBlocking',default=1,values={0,1}}}
-    local dodge, dodgeError = Store.parse(text, dodgeSchema)
-    if not dodge and dodgeError ~= 'Missing setting: dodgeWhileBlocking' then return nil, dodgeError end
+    local added
+    for _, setting in ipairs(schema) do if setting.key==key then added=setting end end
+    assert(added, 'Missing upgrade schema: '..key)
+    local existing, settingError = Store.parse(text, {added})
+    if existing then return previous(directory, schema, seed) end
+    if settingError ~= 'Missing setting: '..key then return nil, settingError end
+    -- Refuse an interrupted upgrade before changing any older preferences.
+    for _, name in ipairs({path..suffix, path..suffix..'.new'}) do
+        local data, e, c = Store.read(name)
+        if data or c~=2 then return nil, 'Recover '..name..': '..tostring(e or '') end
+    end
     local timingSchema = {}
     for _, setting in ipairs(schema) do
-        if setting.key ~= 'dodgeWhileBlocking' then timingSchema[#timingSchema+1] = setting end
+        if setting.key ~= key then timingSchema[#timingSchema+1] = setting end
     end
-    local timing, timingError = loadTiming(directory, timingSchema, seed)
+    local timing, timingError = previous(directory, timingSchema, seed)
     if not timing then return nil, timingError end
     text, err = Store.read(path)
     if not text then return nil, err end
     values, parseError = Store.parse(text, schema)
     if values then return values end
-    if parseError ~= 'Missing setting: dodgeWhileBlocking' then return nil, parseError end
+    if parseError ~= 'Missing setting: '..key then return nil, parseError end
     local newline = text:find('\r\n',1,true) and '\r\n' or '\n'
     local count = 0
     local updated = text:gsub('[^\r\n]+', function(line)
         local clean = line:gsub('^\239\187\191',''):gsub('[;#].*$','')
         if clean:match('^%s*%[Settings%]%s*$') then
             count = count + 1
-            return line..newline..'dodgeWhileBlocking = 1'
+            return line..newline..key..' = '..string.format('%.17g',added.default)
         end
         return line
     end)
-    if count ~= 1 then return nil, 'Expected one Settings section for dodge setting upgrade' end
+    if count ~= 1 then return nil, 'Expected one Settings section for '..key..' upgrade' end
     values, parseError = Store.parse(updated, schema)
     if not values then return nil, parseError end
     local ok, upgradeError = replace(Store,path,text,updated,suffix)
     if not ok then return nil, upgradeError end
     return values
+end
+local function loadBlocking(directory, schema, seed)
+    return loadAdded(directory, schema, seed, 'dodgeWhileBlocking', '.before-dodge-setting', loadTiming)
+end
+function M.load(directory, schema, seed)
+    return loadAdded(directory, schema, seed, 'dodgeWindowPercent', '.before-dodge-window', loadBlocking)
 end
 return M
