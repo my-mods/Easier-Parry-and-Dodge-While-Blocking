@@ -3,31 +3,23 @@
 Makes parrying more forgiving in *The Blood of Dawnwalker*. Includes native guard recovery after dodging. Attack inputs retain the base game’s guard behavior.
 
 [list]
-[*][b][color=#A8D5C2]2× parry timing window[/color][/b] by default, configurable from [b]0.1× to 50×[/b], using the game's difficulty-adjusted baseline.
-[*]Keeps held guard available after a dodge, using the game's native ability lifecycle. Attack inputs retain the base game’s guard behavior.
-[*]Temporarily lowers guard for a dodge and resumes when the game's combat rules allow it. Actual guard release and ability cancellation still end guarding.
+[*][b][color=#A8D5C2]Parry timing window[/color][/b] by default, configurable from [b]0.1× to 50×[/b], using the game's difficulty-adjusted baseline.
 [*][b][color=#A8D5C2]Dodge while blocking[/color][/b] defaults to On. Off restores vanilla dodge and guard behavior, independently of parry timing. Switching waits for any active dodge to finish.
 [*][b][color=#A8D5C2]Perfect dodge window[/color][/b] is independently adjustable from [b]10% to 5,000%[/b] using the native timing check. Choose from the same 20 percentages as parry. [b]100%[/b] keeps normal timing and is the default; [b]200%[/b] doubles the window. Direction and attacker-distance requirements still apply.
-[*]Forward dodges use native state-change and timed completion to restore held guard. Failed or cancelled attempts release their input suppression.
-[*]Native guard handling uses gameplay events. Optional Lua diagnostics observe transitions without changing guard or bindings.
-[*]Parry and perfect-dodge timing accept saved changes during play and load a fresh snapshot after save loading. There is no recurring timing checker or extra Lua callback per dodge.
+[*][b][color=#A8D5C2]Change mod settings live.[/color][/b] Change settings live with [url=https://www.nexusmods.com/thebloodofdawnwalker/mods/271]Mod Setting Menu[/url]
 [/list]
-
-Requires a Dawnwalker-compatible [b]UE4SS 3.x[/b] installation.
-
 [size=4][b][color=#E8C88A]Installation[/color][/b][/size]
 
 [list]
 [*][b][color=#A8D5C2]Vortex:[/color][/b] Install Easier-Parry-and-Dodge-While-Blocking.zip through Vortex, enable it and deploy.
 [*][b][color=#A8D5C2]Manual:[/color][/b] Copy the archive's Dawnwalker folder into ...\steamapps\common\The Blood of Dawnwalker\, preserving the folder structure.
 [/list]
-
 [size=4][b][color=#E8C88A]Settings[/color][/b][/size]
 
-Mod Setting Menu 1.0.6+ is required. Apply saves changes and updates gameplay. Enable HookProcessConsoleExec = 1 in your Vortex-managed UE4SS configuration.
+Apply saves changes and updates gameplay. Enable HookProcessConsoleExec = 1 in your Vortex-managed UE4SS configuration in [b]Dawnwalker\Binaries\Win64\ue4ss[/b][b]\UE4SS-settings.ini[/b].
 
-Use [url=https://www.nexusmods.com/thebloodofdawnwalker/mods/271]Mod Setting Menu 1.0.6 or later[/url] from the main menu. Press Apply to save and update the active game. See SETTINGS.md (included with the mod) for all controls, first-use import and preference backups. Console settings commands are retired.
+Use [url=https://www.nexusmods.com/thebloodofdawnwalker/mods/271]Mod Setting Menu[/url] from the main menu. Press Apply to save and update the active game. See SETTINGS.md (included with the mod) for all controls, first-use import and preference backups. Console settings commands are retired.
 
 [size=4][b][color=#E8C88A]Credits and source[/color][/b][/size]
 
-Created by [b]oOCamilleOo[/b]. Original mod code is under the MIT license (included with the mod); underlying game assets remain the property of their respective rights holders. Nexus listing materials are maintained separately in Nexus (included with the mod).
+Created by [b]oOCamilleOo[/b]. [url=https://github.com/my-mods/Easier-Parry-and-Dodge-While-Blocking]Source code[/url] is under the MIT license.

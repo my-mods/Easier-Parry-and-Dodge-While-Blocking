@@ -1,8 +1,4 @@
-# Easier Parry and Dodge While Blocking 1.3.0
+# Easier Parry and Dodge While Blocking 1.3.1
 
-- Add Mod Setting Menu controls for parry timing and an independent Dodge while blocking toggle.
-- Restore vanilla dodge and guard behavior when Dodge while blocking is Off, and finish active dodges before switching the setting.
-- Add a separate Perfect dodge window setting from 10% to 5,000%, with normal timing as the default.
-- Apply timing and dodge settings during play without loading a save.
-- Restore parry settings after missed loading notifications or delayed player initialization.
-- Replace console settings commands with one settings menu and a single Logging switch.
+- Restore vanilla dodge and guard behavior when Dodge while blocking is Off.
+- Wait for an active dodge to finish before changing Dodge while blocking.
