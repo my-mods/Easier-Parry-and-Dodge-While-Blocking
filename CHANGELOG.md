@@ -8,6 +8,8 @@
 
 ## Unreleased
 
+- Restore vanilla dodge and guard behavior when Dodge while blocking is Off, and finish active dodges before switching the setting.
+
 - Add an independent Perfect dodge window percentage setting using the game's native timing check, with normal timing as the default.
 
 - Add native dodge eligibility/commit results, animation selection, combat-state snapshots and explicit ability end/cancel diagnostics when Blueprint tracing is unavailable.

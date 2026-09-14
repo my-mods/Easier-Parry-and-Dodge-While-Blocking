@@ -20,7 +20,7 @@ Missing, duplicate or invalid settings stop configuration loading and are report
 
 Reset restores the 200% default. For manual INI edits, `parryWindowPercent` accepts values from 10 to 5000. Gameplay accepts values between the menu choices; opening the menu page requires one of the listed values.
 
-**Dodge while blocking:** On keeps the mod's dodge and guard recovery behavior. Off blocks the player's dodge ability while the block input is held. Release block to dodge. This control remains available when Parry timing adjustment is Off. Press Apply to save and update the active game. It uses the game's native ability activation check; it does not poll inputs or settings.
+**Dodge while blocking:** On enables the mod's dodge and guard recovery behavior. Off restores vanilla dodge and guard behavior, including the game's original activation checks and dodge completion paths. This control remains available when Parry timing adjustment is Off. Press Apply to save and update the active game; any active dodge finishes before the switch takes effect. It does not poll inputs or settings.
 
 **Perfect dodge window:** Uses the same 20 percentages listed above. **100%** keeps the game's normal timing and is the default; **200%** doubles the time before an incoming hit in which a dodge can qualify as perfect or ultra. The game's direction and attacker-distance requirements still apply. This control remains available regardless of Parry timing adjustment and Dodge while blocking. It changes the native perfect-dodge timing check; invulnerability duration, animation speed, stamina costs and dodge activation restrictions keep their existing behavior. Press Apply to save and update the active game.
 

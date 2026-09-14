@@ -19,7 +19,7 @@
       "snapshot": "GA_Dodge.json",
       "package": "/Game/_Dawnwalker/Combat/Abilities/Dodge/GA_Dodge",
       "sha256": "c73030365aee0975f1a55b931543e2acd1f8300a7e06b760cf5acb1fbe70335f",
-      "modification": "Add Player.Input.BlockTagAbilities to ActivationOwnedTags; use native combat-state and existing timed completion for forward dodges, clean up failed starts, preserve invincibility ownership, and remove the state listener on cancellation. Other executable exports remain unchanged."
+      "modification": "Add Player.Input.BlockTagAbilities to ActivationOwnedTags; native state/timer guard recovery and cleanup while the tag is present. Four guarded branch destinations restore stock graph paths when the player setting removes that tag. Other executable exports remain unchanged."
     }
   ]
 }

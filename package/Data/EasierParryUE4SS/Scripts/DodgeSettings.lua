@@ -1,15 +1,15 @@
--- MIT. Save-load configuration of native dodge timing and activation rules.
+-- MIT. Event-driven configuration of native dodge timing and guard recovery.
 -- No input hooks, global ability scans, or recurring work.
 local M = {}
 local CLASS = '/Game/_Dawnwalker/Combat/Abilities/Dodge/GA_Dodge.GA_Dodge_C'
-local GUARD = 'Player.Input.Block'
-local FIELD = 'ActivationBlockedTags'
+local GUARD = 'Player.Input.BlockTagAbilities'
+local FIELD = 'ActivationOwnedTags'
 local function live(object)
     return object ~= nil and object:IsValid()
 end
 local function tags(object)
     local values = object[FIELD].GameplayTags
-    assert(#values <= 64, 'Unexpected dodge activation tag count')
+    assert(#values <= 64, 'Unexpected dodge owned tag count')
     local result, found = {}, false
     for i=1,#values do
         local name = values[i].TagName:ToString()
@@ -39,20 +39,19 @@ local function write(object, enabled)
         end
     end
     local property = object:Reflection():GetProperty(FIELD)
-    assert(live(property), 'Dodge activation tag property unavailable')
+    assert(live(property), 'Dodge owned tag property unavailable')
     property:ImportText('(GameplayTags='..serialize(target)..',ParentTags='..serialize(parents)..')',
         property:ContainerPtrToValuePtr(object), 0, object)
     local _, actual = tags(object)
-    assert(actual == enabled, 'Dodge activation tag write did not stick')
+    assert(actual == enabled, 'Dodge owned tag write did not stick')
 end
 
-function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor, scheduleLater)
+function M.start(resolvePlayer, log, diagnostics, vanillaDodge, windowFactor, scheduleLater)
     scheduleLater=scheduleLater or ExecuteInGameThreadWithDelay
     local playerReady=SaveLoadContext and SaveLoadContext.pawn~=nil
     local componentClass, dodgeClass, combatClass
     local windowPending = windowFactor ~= 1
     local windowTargets = {}
-    local blockKeys,blockSeen,restoreCursor={},{},nil
     local ownerAddress, componentAddress, cursor = nil, nil, 1
     local pending, running, dirty, attempts, found = false, false, false, 0, false
     local lastFailure
@@ -63,7 +62,7 @@ function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor, sche
             log('Dodge settings: %s', message)
         end
     end
-    local function patch(object, player)
+    local function patch(object, player, component, specIndex, instanceField, instanceIndex)
         if not live(object) then return false end
         if object:HasAnyFlags(0x3630) then return false end -- defaults/archetypes or loading
         if object:GetClass():GetAddress() ~= dodgeClass:GetAddress() then return false end
@@ -78,17 +77,36 @@ function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor, sche
             local class = object:GetClass()
             return live(class) and class:GetAddress() == classAddress and object:GetFullName() == name
         end
+        local function inactive()
+            if not valid() or not live(component) or component:HasAnyFlags(0x18000) then return false end
+            -- Specs are borrowed views; reacquire and verify the indexed instance.
+            local items = component.ActivatableAbilities.Items
+            if specIndex > #items then return false end
+            local spec = items[specIndex]
+            local instances = spec[instanceField]
+            if instanceIndex > #instances then return false end
+            local current = instances[instanceIndex]
+            if not live(current) or current:GetAddress() ~= address then return false end
+            local count = spec.ActiveCount
+            assert(type(count)=='number' and count>=0 and count<=255, 'Dodge active count unavailable')
+            return count == 0
+        end
+        local _, hasGuard = tags(object)
+        local target = not vanillaDodge
+        if hasGuard == target then return true end
+        -- ActivationOwnedTags must remain stable until GAS removes this dodge's
+        -- acquired tags. Never change mode halfway through its graph/teardown.
+        if not inactive() then return false end
         local key='dodge-block:'..tostring(address)
-        if not blockSeen[key] then blockSeen[key]=true;blockKeys[#blockKeys+1]=key end
         Session.change(key, function()
-            if not valid() then return nil, false end
+            if not inactive() then return nil, false end
             local _, hasGuard = tags(object)
             return hasGuard
         end, function(value)
-            assert(valid(), 'Dodge ability was replaced')
+            assert(inactive(), 'Dodge ability is active or was replaced')
             write(object, value)
             return true -- Yield after a native property restore.
-        end, true)
+        end, target)
         return true
     end
     local function patchWindow(player)
@@ -135,15 +153,7 @@ function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor, sche
         if windowPending then
             if not patchWindow(player) then return 'waiting' end
             windowPending = false
-            if blockDodge then return 'more' end -- Separate timing and ability discovery across frames.
-        end
-        if not blockDodge then
-            if restoreCursor and blockKeys[restoreCursor] then
-                Session.restore(blockKeys[restoreCursor]);restoreCursor=restoreCursor+1
-                return 'more'
-            end
-            restoreCursor=nil
-            return 'done'
+            return 'more' -- Separate timing and ability discovery across frames.
         end
         if not live(componentClass) then componentClass=StaticFindObject('/Script/GameplayAbilities.AbilitySystemComponent') end
         if not live(dodgeClass) then dodgeClass=StaticFindObject(CLASS) end
@@ -168,7 +178,7 @@ function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor, sche
                     local instances = spec[field]
                     assert(#instances <= 1, 'Unexpected per-actor dodge instance count')
                     for i=1,#instances do
-                        if patch(instances[i], player) then found=true end
+                        if patch(instances[i], player, component, cursor-1, field, i) then found=true end
                     end
                 end
                 return 'more' -- At most one dodge spec is patched in a frame.
@@ -194,7 +204,7 @@ function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor, sche
             attempts=attempts+1; cursor=1; found=false
             if attempts < 20 then schedule(100); return end
             running=false
-            failure('Player dodge settings not ready; will retry on the next lifecycle event')
+            failure('Player dodge settings not ready or dodge still active; will retry on the next settings change or lifecycle event')
             return
         end
         if dirty then dirty=false; cursor=1; found=false; windowPending=windowFactor~=1 or next(windowTargets)~=nil; schedule(16); return end
@@ -213,10 +223,9 @@ function M.start(resolvePlayer, log, diagnostics, blockDodge, windowFactor, sche
         local ok,err=pcall(NotifyOnNewObject,path,wake)
         if not ok then failure('Dodge notifications unavailable: '..tostring(err)) end
     end
-    local function update(blocked,factor)
-        local changed=blockDodge~=blocked or windowFactor~=factor
-        blockDodge,windowFactor=blocked,factor
-        if not blocked and #blockKeys>0 then restoreCursor=1 end
+    local function update(vanilla,factor)
+        local changed=vanillaDodge~=vanilla or windowFactor~=factor
+        vanillaDodge,windowFactor=vanilla,factor
         if playerReady and (changed or not running) then wake() end
     end
     return wake,update

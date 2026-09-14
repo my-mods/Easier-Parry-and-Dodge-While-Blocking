@@ -61,7 +61,7 @@ local function IsDefaultObject(object)
 end
 
 -- Guard input and dodge suspension are handled by the native ability assets.
--- The optional dodge setting adds a native activation requirement at save load.
+-- The dodge setting selects vanilla behavior or native guard recovery.
 
 local function NearlyEqual(left, right)
     return type(left) == "number" and type(right) == "number"
@@ -408,11 +408,8 @@ dispatchSettings=function()
 end
 local function scheduleDodge(delay,fn) enqueueSettings('dodge',delay,fn) end
 local function scheduleTrace(delay,fn) enqueueSettings(fn,delay,fn) end
-local dodgeReady,updateDodge
-if not config.dodgeWhileBlocking or config.dodgeWindowFactor ~= 1 then
-    dodgeReady,updateDodge = dofile(scriptDirectory..'DodgeSettings.lua').start(FindPlayerAttributeSet, Log, diagnostics,
-        not config.dodgeWhileBlocking, config.dodgeWindowFactor,scheduleDodge)
-end
+local dodgeReady,updateDodge = dofile(scriptDirectory..'DodgeSettings.lua').start(FindPlayerAttributeSet, Log, diagnostics,
+    not config.dodgeWhileBlocking, config.dodgeWindowFactor,scheduleDodge)
 local pending = false
 local function scheduleParry()
     if pending then return end
@@ -446,7 +443,7 @@ SetGuardTracing = function(enabled)
     if not ok then Log("GuardTrace failed: %s", tostring(err)) end
 end
 SetGuardTracing(config.debugLogging)
-local loggingPending,dodgeCreatePending=false,false
+local loggingPending=false
 Session.onSettings(function(values,changes)
     local previous=config
     config=SettingsModel.convert(values)
@@ -465,20 +462,7 @@ Session.onSettings(function(values,changes)
         if playerReady or pending then scheduleParry() end
     end
     if previous.dodgeWhileBlocking~=config.dodgeWhileBlocking or previous.dodgeWindowFactor~=config.dodgeWindowFactor then
-        if not updateDodge then
-            if not playerReady then return end
-            if dodgeCreatePending then return end
-            dodgeCreatePending=true
-            -- Creating the worker installs its two finite lifecycle subscriptions.
-            enqueueSettings('createDodge',16,function()
-                dodgeCreatePending=false
-                if not updateDodge then
-                    dodgeReady,updateDodge=dofile(scriptDirectory..'DodgeSettings.lua').start(FindPlayerAttributeSet,Log,diagnostics,
-                        not config.dodgeWhileBlocking,config.dodgeWindowFactor,scheduleDodge)
-                end
-                updateDodge(not config.dodgeWhileBlocking,config.dodgeWindowFactor)
-            end)
-        else updateDodge(not config.dodgeWhileBlocking,config.dodgeWindowFactor) end
+        updateDodge(not config.dodgeWhileBlocking,config.dodgeWindowFactor)
     end
 end)
 
