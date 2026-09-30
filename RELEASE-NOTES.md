@@ -1,3 +1,3 @@
-# Easier Parry and Dodge While Blocking 1.3.1
+# Easier Parry and Dodge While Blocking 1.3.2
 
-- Restore vanilla dodge and guard behavior when Off.
+- Fix Dodge while blocking being rejected for valid player dodge instances.
