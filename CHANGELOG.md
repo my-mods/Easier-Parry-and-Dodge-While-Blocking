@@ -12,7 +12,7 @@
 
 ## Unreleased
 
-- Include the observed ability policy in dodge setup failure messages.
+- Apply dodge settings to validated player-owned instances without rejecting an assumed instancing-policy value.
 - Add an independent Perfect dodge window percentage setting using the game's native timing check, with normal timing as the default.
 
 - Add native dodge eligibility/commit results, animation selection, combat-state snapshots and explicit ability end/cancel diagnostics when Blueprint tracing is unavailable.

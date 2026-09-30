@@ -7,13 +7,6 @@ local FIELD = 'ActivationOwnedTags'
 local function live(object)
     return object ~= nil and object:IsValid()
 end
-local function requirePerActor(object)
-    local policy=object.InstancingPolicy
-    if policy~=1 then
-        error('Unsupported dodge ability instancing policy: '..tostring(policy)..
-            ' (type='..type(policy)..', object='..object:GetFullName()..')')
-    end
-end
 local function tags(object)
     local values = object[FIELD].GameplayTags
     assert(#values <= 64, 'Unexpected dodge owned tag count')
@@ -73,8 +66,8 @@ function M.start(resolvePlayer, log, diagnostics, vanillaDodge, windowFactor, sc
         if not live(object) then return false end
         if object:HasAnyFlags(0x3630) then return false end -- defaults/archetypes or loading
         if object:GetClass():GetAddress() ~= dodgeClass:GetAddress() then return false end
-        -- GA_Dodge is instanced per actor. Never alter shared class defaults or NPCs.
-        requirePerActor(object)
+        -- Require a real player-owned instance, not an assumed policy enum.
+        -- Shared class defaults and NPCs are never changed.
         local avatar = object:GetAvatarActorFromActorInfo()
         if not live(avatar) or avatar:GetAddress() ~= player:GetAddress() then return false end
         local address = object:GetAddress()
@@ -180,7 +173,6 @@ function M.start(resolvePlayer, log, diagnostics, vanillaDodge, windowFactor, sc
             cursor = cursor + 1
             local ability = spec.Ability
             if live(ability) and ability:GetClass():GetAddress() == dodgeClass:GetAddress() then
-                requirePerActor(ability)
                 for _, field in ipairs({'NonReplicatedInstances','ReplicatedInstances'}) do
                     local instances = spec[field]
                     assert(#instances <= 1, 'Unexpected per-actor dodge instance count')

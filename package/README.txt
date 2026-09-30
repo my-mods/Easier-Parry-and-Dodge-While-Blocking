@@ -39,4 +39,4 @@ Settings are prepared when the game starts and are available from the main menu 
 
 Parry timing, perfect-dodge timing and dodge while blocking update independently. Timing changes use retained original values; returning to 100% restores normal timing. Parry timing Off restores only the parry override. Queued changes share one bounded worker.
 
-Logging is the final, sole diagnostic control. It changes immediately; verbose logging is Off by default. Logs are written to `Dawnwalker/Binaries/Win64/ue4ss/UE4SS.log`. Unsupported dodge ability policies are reported with the observed value and ability identity. Settings are never polled.
+Logging is the final, sole diagnostic control. It changes immediately; verbose logging is Off by default. Logs are written to `Dawnwalker/Binaries/Win64/ue4ss/UE4SS.log`. Dodge setup validates the actual player-owned ability instance and waits for its active lifetime to finish; it does not require a particular instancing-policy number. Settings are never polled.
