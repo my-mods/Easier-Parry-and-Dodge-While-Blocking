@@ -14,7 +14,7 @@
   },
   "runtimeSources": {
     "package/Data/EasierParryUE4SS/Scripts/dmm_api.lua": "6bb667bffc543d1c5c1b36ab6da66c621d6c81c9ee46f94f0f6339cae9cc884c",
-    "package/Data/EasierParryUE4SS/Scripts/DodgeSettings.lua": "808b5a25c6ff65b610bee94da0df9f649c43d8583166ec01d59a82dce4ea9b94",
+    "package/Data/EasierParryUE4SS/Scripts/DodgeSettings.lua": "88bbf981505acc038cf553b965e4fb7e30ceb66bdde42eb46358a156e8829b8c",
     "package/Data/EasierParryUE4SS/Scripts/Gameplay.lua": "50d540f11935e203ae4cf6f6178100a2b1268048248279430505ec68b415598c",
     "package/Data/EasierParryUE4SS/Scripts/GuardTrace.lua": "95f5aac3869069502a4a97035c50ace46686ecf67419612a0dd793885ad97215",
     "package/Data/EasierParryUE4SS/Scripts/LiveSettings.lua": "9bc6f7a9134f2f15b9cd62d63d45519eb7d2ae2cb545289bd69485b23517792e",
