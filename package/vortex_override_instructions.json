@@ -28,7 +28,11 @@
       "SETTINGS.md",
       "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
       "DMM-API-SOURCE.json",
-      "ue4ss-common.lock.json"
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
     ]
   },
   {
@@ -45,7 +49,11 @@
       "SETTINGS.md",
       "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
       "DMM-API-SOURCE.json",
-      "ue4ss-common.lock.json"
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
     ]
   },
   {
@@ -62,7 +70,11 @@
       "SETTINGS.md",
       "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
       "DMM-API-SOURCE.json",
-      "ue4ss-common.lock.json"
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
     ]
   },
   {
@@ -79,7 +91,11 @@
       "SETTINGS.md",
       "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
       "DMM-API-SOURCE.json",
-      "ue4ss-common.lock.json"
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
     ]
   },
   {
@@ -96,7 +112,11 @@
       "SETTINGS.md",
       "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
       "DMM-API-SOURCE.json",
-      "ue4ss-common.lock.json"
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
     ]
   },
   {
@@ -113,7 +133,11 @@
       "SETTINGS.md",
       "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
       "DMM-API-SOURCE.json",
-      "ue4ss-common.lock.json"
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
     ]
   },
   {
@@ -130,7 +154,11 @@
       "SETTINGS.md",
       "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
       "DMM-API-SOURCE.json",
-      "ue4ss-common.lock.json"
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
     ]
   },
   {
@@ -147,7 +175,11 @@
       "SETTINGS.md",
       "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
       "DMM-API-SOURCE.json",
-      "ue4ss-common.lock.json"
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
     ]
   },
   {
@@ -164,7 +196,11 @@
       "SETTINGS.md",
       "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
       "DMM-API-SOURCE.json",
-      "ue4ss-common.lock.json"
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
     ]
   },
   {
@@ -181,7 +217,11 @@
       "SETTINGS.md",
       "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
       "DMM-API-SOURCE.json",
-      "ue4ss-common.lock.json"
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
     ]
   },
   {
@@ -198,7 +238,11 @@
       "SETTINGS.md",
       "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
       "DMM-API-SOURCE.json",
-      "ue4ss-common.lock.json"
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
     ]
   },
   {
@@ -215,7 +259,158 @@
       "SETTINGS.md",
       "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
       "DMM-API-SOURCE.json",
-      "ue4ss-common.lock.json"
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
+    ]
+  },
+  {
+    "type": "attribute",
+    "source": "BUILD.md",
+    "key": "easierParryReleaseMaterials",
+    "value": [
+      "mod.manifest",
+      "README.txt",
+      "LICENSE.txt",
+      "CHANGELOG.md",
+      "RELEASE-NOTES.md",
+      "Data/Easier-Parry-UE4SS-PACKAGE-LAYOUT.txt",
+      "SETTINGS.md",
+      "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
+      "DMM-API-SOURCE.json",
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
+    ]
+  },
+  {
+    "type": "attribute",
+    "source": "LICENSES/MinHook.txt",
+    "key": "easierParryReleaseMaterials",
+    "value": [
+      "mod.manifest",
+      "README.txt",
+      "LICENSE.txt",
+      "CHANGELOG.md",
+      "RELEASE-NOTES.md",
+      "Data/Easier-Parry-UE4SS-PACKAGE-LAYOUT.txt",
+      "SETTINGS.md",
+      "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
+      "DMM-API-SOURCE.json",
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
+    ]
+  },
+  {
+    "type": "attribute",
+    "source": "LICENSES\\MinHook.txt",
+    "key": "easierParryReleaseMaterials",
+    "value": [
+      "mod.manifest",
+      "README.txt",
+      "LICENSE.txt",
+      "CHANGELOG.md",
+      "RELEASE-NOTES.md",
+      "Data/Easier-Parry-UE4SS-PACKAGE-LAYOUT.txt",
+      "SETTINGS.md",
+      "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
+      "DMM-API-SOURCE.json",
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
+    ]
+  },
+  {
+    "type": "attribute",
+    "source": "LICENSES/UE4SS.txt",
+    "key": "easierParryReleaseMaterials",
+    "value": [
+      "mod.manifest",
+      "README.txt",
+      "LICENSE.txt",
+      "CHANGELOG.md",
+      "RELEASE-NOTES.md",
+      "Data/Easier-Parry-UE4SS-PACKAGE-LAYOUT.txt",
+      "SETTINGS.md",
+      "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
+      "DMM-API-SOURCE.json",
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
+    ]
+  },
+  {
+    "type": "attribute",
+    "source": "LICENSES\\UE4SS.txt",
+    "key": "easierParryReleaseMaterials",
+    "value": [
+      "mod.manifest",
+      "README.txt",
+      "LICENSE.txt",
+      "CHANGELOG.md",
+      "RELEASE-NOTES.md",
+      "Data/Easier-Parry-UE4SS-PACKAGE-LAYOUT.txt",
+      "SETTINGS.md",
+      "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
+      "DMM-API-SOURCE.json",
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
+    ]
+  },
+  {
+    "type": "attribute",
+    "source": "LICENSES/fmt.txt",
+    "key": "easierParryReleaseMaterials",
+    "value": [
+      "mod.manifest",
+      "README.txt",
+      "LICENSE.txt",
+      "CHANGELOG.md",
+      "RELEASE-NOTES.md",
+      "Data/Easier-Parry-UE4SS-PACKAGE-LAYOUT.txt",
+      "SETTINGS.md",
+      "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
+      "DMM-API-SOURCE.json",
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
+    ]
+  },
+  {
+    "type": "attribute",
+    "source": "LICENSES\\fmt.txt",
+    "key": "easierParryReleaseMaterials",
+    "value": [
+      "mod.manifest",
+      "README.txt",
+      "LICENSE.txt",
+      "CHANGELOG.md",
+      "RELEASE-NOTES.md",
+      "Data/Easier-Parry-UE4SS-PACKAGE-LAYOUT.txt",
+      "SETTINGS.md",
+      "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
+      "DMM-API-SOURCE.json",
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt"
     ]
   }
 ]
