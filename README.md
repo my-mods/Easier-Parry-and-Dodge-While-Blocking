@@ -4,6 +4,7 @@
 
 Makes parrying more forgiving in *The Blood of Dawnwalker*. Includes native guard recovery after dodging. Attack inputs retain the base game’s guard behavior.
 
+- **Riposte direction** offers **Vanilla (Random)**, **Opposite direction** (default), and **Same direction** for the red opening after a successful directional parry. It works independently of parry timing and the dodge controls.
 - **200% parry timing window** by default (2 times normal), adjustable from **10% to 5,000%** of the game's difficulty-adjusted baseline. Choose from 20 percentages with closer spacing at low values and wider gaps at high values.
 - Keeps held guard available after a dodge, using the game's native ability lifecycle. Attack inputs retain the base game’s guard behavior.
 - Temporarily lowers guard for a dodge and resumes when the game's combat rules allow it. Actual guard release and ability cancellation still end guarding.
@@ -14,7 +15,7 @@ Makes parrying more forgiving in *The Blood of Dawnwalker*. Includes native guar
 - Native guard handling uses gameplay events. Optional Lua diagnostics observe transitions without changing guard or bindings.
 - Parry, perfect-dodge and invulnerability timing accept saved changes during play and load a fresh snapshot after save loading. The game handles dodge timing through its native combat settings, with no recurring timing checker or extra Lua callback per dodge.
 
-Requires a Dawnwalker-compatible **UE4SS 3.x** installation. The archive includes both the dodge asset and the parry timing script.
+Requires a Dawnwalker-compatible **UE4SS 3.x** installation. The archive includes the dodge asset, parry timing script and native riposte helper.
 
 ## Installation
 
@@ -23,7 +24,12 @@ Requires a Dawnwalker-compatible **UE4SS 3.x** installation. The archive include
 
 ## Settings
 
-Use [Mod Setting Menu 1.0.6 or later](https://www.nexusmods.com/thebloodofdawnwalker/mods/271) from the main menu. Press Apply to save and update the active game. See [SETTINGS.md](SETTINGS.md) for all controls and supported settings. Console settings commands are retired.
+Use [Mod Setting Menu 1.0.6 or later](https://www.nexusmods.com/thebloodofdawnwalker/mods/271) from the main menu. Press Apply to save and update the active game. See [SETTINGS.md](SETTINGS.md) for all controls and supported settings.
+
+**Riposte direction:** Same and Opposite refer to the on-screen side of the attack you successfully parried, even after guard input changes or clears. Opposite swaps Left/Right and Top/Bottom. The game still controls the Critical Riposte skill requirements, opening chance, duration and damage. This setting changes the opening, not your attack input. Combat Camera is not required.
+
+The saved key is `riposteDirection`: 0 = Vanilla (Random), 1 = Opposite direction (default), 2 = Same direction. Existing parry settings receive this new default with the original file retained as `settings.ini.before-riposte-direction`. Choose the desired mode in this mod; the old Combat Camera preference is no longer used. No complete INI replacement is required.
+ Console settings commands are retired.
 
 With Logging On, native combat tracing records dodge state-check and ability-commit results, selected dodge direction, explicit ability end/cancel calls, and combat-state/input-tag snapshots. These diagnostics work independently of Blueprint tracing. An unavailable Blueprint dispatcher is reported once per mod launch; save loads do not restart those failed attempts.
 
@@ -40,6 +46,10 @@ Mod Setting Menu 1.0.6 or later is required. Its callback bridge also requires `
 
 Settings are prepared when the game starts and are available from the main menu before the first save. Press **Apply** to save and update the active game. Changes made while loading are retained for the next valid player. Restore and Discard leave saved settings unchanged; Reset takes effect after Apply.
 
-Parry timing, perfect-dodge timing, dodge invulnerability and dodge while blocking update independently. Returning any timing window to 100% restores the corresponding original timing. Parry timing Off restores only the parry override. Invulnerability changes apply to subsequent dodge timers. Queued changes share one bounded worker.
+Riposte direction, parry timing, perfect-dodge timing, dodge invulnerability and dodge while blocking update independently. Returning any timing window to 100% restores the corresponding original timing. Parry timing Off restores only the parry override. Invulnerability changes apply to subsequent dodge timers. Queued changes share one bounded worker.
 
 Logging is the final, sole diagnostic control. It changes immediately; verbose logging is Off by default. Logs are written to `Dawnwalker/Binaries/Win64/ue4ss/UE4SS.log`. Timing changes log their multiplier and verified before/after seconds when Logging is On. A timing-field failure identifies the affected field while other settings continue. Dodge setup validates the actual player-owned ability instance and waits for its active lifetime to finish; it does not require a particular instancing-policy number. Settings are never polled.
+
+Riposte direction uses bounded, one-use enemy records and native gameplay time. It adds no per-frame timer or polling. Logging includes aggregate parry, opening-query, applied-override, unmatched-query and guard-drift counts with query time. A failed native or opening-task contract keeps vanilla openings and reports the affected dependency; other parry and dodge features remain available.
+
+The native helper is MIT-licensed, with MinHook, UE4SS and fmt notices in LICENSES. See [BUILD.md](BUILD.md) for native build instructions.

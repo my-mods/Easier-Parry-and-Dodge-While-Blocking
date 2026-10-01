@@ -16,6 +16,9 @@
 
 ## Unreleased
 
+- Add independent Riposte direction choices: Vanilla (Random), Opposite direction (default), and Same direction.
+- Keep directional openings tied to the attack successfully parried when guard input clears or changes.
+
 - Add an independent dodge invulnerability window from 25% to 5,000% for normal and fatigued side/back dodge timers, with normal duration at 100%.
 - Apply timing edits received while guard setup is waiting, and keep unaffected timing fields available if another field fails.
 - Apply dodge settings to validated player-owned instances without rejecting an assumed instancing-policy value.

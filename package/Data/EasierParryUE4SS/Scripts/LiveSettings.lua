@@ -10,8 +10,19 @@ function M.new(directory, report)
         ["dodgeWhileBlocking"]="dodgeWhileBlocking",
         ["dodgeWindowPercent"]="dodgeWindowPercent",
         ["dodgeInvulnerabilityWindowPercent"]="dodgeInvulnerabilityWindowPercent",
+        ["riposteDirection"]="riposteDirection",
         ["debugLogging"]="debugLogging"
         }})
+    local applyRiposte=dofile(directory..'RiposteSettings.lua').new(_G,report)
+    local seed,attach=live.seed,live.attach
+    live.seed=function(values)
+        local result=seed(values);applyRiposte(result);return result
+    end
+    live.attach=function(callback)
+        return attach(function(values,changes)
+            applyRiposte(values);callback(values,changes)
+        end)
+    end
     live.start(function(id,callback)
         return dofile(directory..'dmm_api.lua').subscribe(id,callback)
     end)

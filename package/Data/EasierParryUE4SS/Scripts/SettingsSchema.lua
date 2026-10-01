@@ -5,5 +5,6 @@ return {
     {key="dodgeWhileBlocking", default=1, values={0,1}},
     {key="dodgeWindowPercent", default=100, min=10, max=5000, integer=false},
     {key="dodgeInvulnerabilityWindowPercent", default=100, min=25, max=5000, integer=false},
+    {key="riposteDirection", default=1, values={0,1,2}},
     {key="debugLogging", default=0, values={0,1}},
 }

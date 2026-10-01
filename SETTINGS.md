@@ -10,6 +10,7 @@ Missing, duplicate or invalid settings stop configuration loading and are report
 | --- | --- | --- |
 | General | Parry timing adjustment | Off, On |
 | Parry | Parry window | 20 percentage choices from 10% to 5,000% |
+| Riposte | Riposte direction | Vanilla (Random), Opposite direction (default), Same direction |
 | Dodge | Dodge while blocking | Off, On (default) |
 | Dodge | Perfect dodge window | 20 percentage choices from 10% to 5,000%; default 100% |
 | Dodge | Dodge invulnerability window | 20 percentage choices from 25% to 5,000%; default 100% |
@@ -20,6 +21,10 @@ Missing, duplicate or invalid settings stop configuration loading and are report
 **100%** is the normal difficulty-adjusted window; **200%** is twice as long and remains the default. **10%** is one tenth as long; **5,000%** is 50 times as long. This changes the window for a successful parry, not animation speed.
 
 Reset restores the 200% default. For manual INI edits, `parryWindowPercent` accepts values from 10 to 5000. Gameplay accepts values between the menu choices; opening the menu page requires one of the listed values.
+
+**Riposte direction:** Same and Opposite refer to the on-screen side of the attack you successfully parried, even after guard input changes or clears. Opposite swaps Left/Right and Top/Bottom. The game still controls the Critical Riposte skill requirements, opening chance, duration and damage. This setting changes the opening, not your attack input. Combat Camera is not required.
+
+The saved key is `riposteDirection`: 0 = Vanilla (Random), 1 = Opposite direction (default), 2 = Same direction. Existing parry settings receive this new default with the original file retained as `settings.ini.before-riposte-direction`. Choose the desired mode in this mod; the old Combat Camera preference is no longer used. No complete INI replacement is required.
 
 **Dodge while blocking:** On enables the mod's dodge and guard recovery behavior. Off restores vanilla dodge and guard behavior, including the game's original activation checks and dodge completion paths. This control remains available when Parry timing adjustment is Off. Press Apply to save and update the active game; any active dodge finishes before the switch takes effect. It does not poll inputs or settings.
 
@@ -60,4 +65,6 @@ Mod Setting Menu 1.0.6 or later is required. Its callback bridge also requires `
 
 Settings are prepared when the game starts and are available from the main menu before the first save. Press **Apply** to save and update the active game. Changes made while loading are retained for the next valid player. Restore and Discard leave saved settings unchanged; Reset takes effect after Apply.
 
-Parry timing, perfect-dodge timing, dodge invulnerability and dodge while blocking update independently. Returning any timing window to 100% restores the corresponding original timing. Parry timing Off restores only the parry override. Queued changes share one bounded worker. With Logging On, changed timing fields report their multiplier and verified before/after seconds; an unavailable field reports its name while other settings continue.
+Riposte direction, parry timing, perfect-dodge timing, dodge invulnerability and dodge while blocking update independently. Returning any timing window to 100% restores the corresponding original timing. Parry timing Off restores only the parry override. Queued changes share one bounded worker. With Logging On, changed timing fields report their multiplier and verified before/after seconds; an unavailable field reports its name while other settings continue.
+
+Native riposte diagnostics are aggregated at most once every five seconds while opening queries occur. Logging Off skips diagnostic counters, formatting and timing. No polling runs between events.

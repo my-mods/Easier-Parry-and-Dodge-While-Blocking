@@ -379,6 +379,12 @@ if type(ExecuteInGameThreadWithDelay)~='function' or type(CancelDelayedAction)~=
     Log('Readiness requires game-thread one-shot scheduling and cancellation.'); return
 end
 Session.onClose(RestoreBaseline)
+-- Revoke one-use openings when a save session ends; no recurring work.
+Session.onClose(function()
+    if type(_EPRReset)=='function' and type(ExecuteInGameThread)=='function' then
+        ExecuteInGameThread(_EPRReset)
+    end
+end)
 -- All settings phases share one bounded one-shot worker. A native phase is
 -- indivisible; after it returns the next phase always yields at least 16 ms.
 local settingsJobs,settingsOrder,settingsTimer,dispatching={},{},false,false

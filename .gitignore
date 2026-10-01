@@ -11,6 +11,7 @@ AGENTS.md
 /internal/
 /diagnostics/
 /build*
+!/BUILD.md
 /publish*
 /reapply*
 *.log

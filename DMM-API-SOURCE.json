@@ -15,18 +15,19 @@
   "runtimeSources": {
     "package/Data/EasierParryUE4SS/Scripts/dmm_api.lua": "6bb667bffc543d1c5c1b36ab6da66c621d6c81c9ee46f94f0f6339cae9cc884c",
     "package/Data/EasierParryUE4SS/Scripts/DodgeSettings.lua": "c5ba80921eb3fd34fb4c8524be495f0b76280810a1f65e9a9fd7fdebae898124",
-    "package/Data/EasierParryUE4SS/Scripts/Gameplay.lua": "12f98b04e789047aa6c0f539d97e10a1b8f7fd3c12cb65b125a8ffbdb0e8be3c",
+    "package/Data/EasierParryUE4SS/Scripts/Gameplay.lua": "ca9e36e556c52b6dc9d232b6e69be552d61a76b1d29e8c709496af9d26697354",
     "package/Data/EasierParryUE4SS/Scripts/GuardTrace.lua": "95f5aac3869069502a4a97035c50ace46686ecf67419612a0dd793885ad97215",
-    "package/Data/EasierParryUE4SS/Scripts/LiveSettings.lua": "a26f35b912508b1df3323b5313efb7d85e90b3dca47573281950924edfc735aa",
+    "package/Data/EasierParryUE4SS/Scripts/LiveSettings.lua": "8b2548917c87911a872bfe929578f6502d25c1d579fd1a74f57ba3ddb4a017e5",
     "package/Data/EasierParryUE4SS/Scripts/main.lua": "5c9ab316f387ddf31023e71a829b0c43b55391e89161504f09f2ed3321332716",
-    "package/Data/EasierParryUE4SS/Scripts/ParrySettings.lua": "74cf51e1083696d2e0de75adaa5351324d4d5797a703dd737fbaaf3c77d57dbc",
+    "package/Data/EasierParryUE4SS/Scripts/ParrySettings.lua": "1a8dac75391681a83f74b9b95c945f7c9899d35a920f1a51388d93af016efb63",
     "package/Data/EasierParryUE4SS/Scripts/SettingsModel.lua": "3b73e1354eb80c7582cb680299653ee858dad628f2a4c049fff8ab9a210c3025",
-    "package/Data/EasierParryUE4SS/Scripts/SettingsSchema.lua": "73efbf5021a73cffee5add49392e9518c92a2e6c8087fbace387085e444a84e8",
+    "package/Data/EasierParryUE4SS/Scripts/SettingsSchema.lua": "18bdd182e4b46aa1149b727afedfb73528e0ffeb602063dc6d26cdd30fbdca76",
     "package/Data/EasierParryUE4SS/Scripts/SettingsStore.lua": "db597ebcfbe67fd03aa16c3c2eb4129c346975961e4df0481bb70440aa7cfa26",
     "package/Data/EasierParryUE4SS/Scripts/UE4SSCommonDiagnostics.lua": "a6c3de0fb908085654e967a0c38c388dd021d19af7fecc0bb0722a3ea1b20f0e",
     "package/Data/EasierParryUE4SS/Scripts/UE4SSCommonHooks.lua": "723b8680903e75f64d44deaad432b90169e91e5f322d964aaedc4a6aaba4abea",
     "package/Data/EasierParryUE4SS/Scripts/UE4SSCommonSession.lua": "924272d0246d73759ba57a6ed5f0feea319065a96119d7c9ff7248dd345a09a2",
     "package/Data/EasierParryUE4SS/Scripts/UE4SSDawnwalkerSaveLoad.lua": "17e9cbb70326f536b14ba5512a46ac425e7e1446c90516e826b2092b30465707",
-    "package/Data/EasierParryUE4SS/Scripts/UE4SSDawnwalkerSettings.lua": "039b09679eafec2b19cd8f27e3033dec26a52484a7529edbf14f15193ba07ef1"
+    "package/Data/EasierParryUE4SS/Scripts/UE4SSDawnwalkerSettings.lua": "039b09679eafec2b19cd8f27e3033dec26a52484a7529edbf14f15193ba07ef1",
+    "package/Data/EasierParryUE4SS/Scripts/RiposteSettings.lua": "9de7c887f89ea8bb6c21531b28b4c2e928f6dd2483b63334c075e446c16e810a"
   }
 }

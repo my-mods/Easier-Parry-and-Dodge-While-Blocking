@@ -129,7 +129,7 @@ end
 local function loadPerfectWindow(directory, schema, seed)
     return loadAdded(directory, schema, seed, 'dodgeWindowPercent', '.before-dodge-window', loadBlocking)
 end
-function M.load(directory, schema, seed)
+local function loadInvulnerability(directory, schema, seed)
     local key = 'dodgeInvulnerabilityWindowPercent'
     local Store = dofile(directory..'SettingsStore.lua')
     local text = Store.read(Store.path(directory))
@@ -147,5 +147,8 @@ function M.load(directory, schema, seed)
         end
     end
     return loadAdded(directory, schema, seed, key, '.before-dodge-invulnerability-window', loadPerfectWindow, initialValue)
+end
+function M.load(directory, schema, seed)
+    return loadAdded(directory, schema, seed, "riposteDirection", ".before-riposte-direction", loadInvulnerability)
 end
 return M
