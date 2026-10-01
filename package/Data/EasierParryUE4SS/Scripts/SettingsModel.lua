@@ -125,6 +125,7 @@ local M={load=LoadConfig}
 function M.convert(values)
     return {enabled=values.enabled==1,factor=values.parryWindowPercent/100,
         debugLogging=values.debugLogging==1,dodgeWhileBlocking=values.dodgeWhileBlocking==1,
-        dodgeWindowFactor=values.dodgeWindowPercent/100}
+        dodgeWindowFactor=values.dodgeWindowPercent/100,
+        dodgeInvulnerabilityFactor=1+values.dodgeInvulnerabilityPercent/100}
 end
 return M

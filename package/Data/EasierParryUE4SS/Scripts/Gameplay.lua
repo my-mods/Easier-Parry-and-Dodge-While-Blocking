@@ -18,6 +18,7 @@ local config = {
     debugLogging = false,
     dodgeWhileBlocking = true,
     dodgeWindowFactor = 1.0,
+    dodgeInvulnerabilityFactor = 1.0,
     dodgeInterruptsGuard = false, -- Legacy INI compatibility; native guard assets own this behavior.
 }
 
@@ -409,7 +410,7 @@ end
 local function scheduleDodge(delay,fn) enqueueSettings('dodge',delay,fn) end
 local function scheduleTrace(delay,fn) enqueueSettings(fn,delay,fn) end
 local dodgeReady,updateDodge = dofile(scriptDirectory..'DodgeSettings.lua').start(FindPlayerAttributeSet, Log, diagnostics,
-    not config.dodgeWhileBlocking, config.dodgeWindowFactor,scheduleDodge)
+    not config.dodgeWhileBlocking, config.dodgeWindowFactor,scheduleDodge,config.dodgeInvulnerabilityFactor)
 local pending = false
 local function scheduleParry()
     if pending then return end
@@ -461,8 +462,9 @@ Session.onSettings(function(values,changes)
     if previous.enabled~=config.enabled or previous.factor~=config.factor then
         if playerReady or pending then scheduleParry() end
     end
-    if previous.dodgeWhileBlocking~=config.dodgeWhileBlocking or previous.dodgeWindowFactor~=config.dodgeWindowFactor then
-        updateDodge(not config.dodgeWhileBlocking,config.dodgeWindowFactor)
+    if previous.dodgeWhileBlocking~=config.dodgeWhileBlocking or previous.dodgeWindowFactor~=config.dodgeWindowFactor
+        or previous.dodgeInvulnerabilityFactor~=config.dodgeInvulnerabilityFactor then
+        updateDodge(not config.dodgeWhileBlocking,config.dodgeWindowFactor,config.dodgeInvulnerabilityFactor)
     end
 end)
 

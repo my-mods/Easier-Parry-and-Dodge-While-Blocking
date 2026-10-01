@@ -9,9 +9,10 @@ Makes parrying more forgiving in *The Blood of Dawnwalker*. Includes native guar
 - Temporarily lowers guard for a dodge and resumes when the game's combat rules allow it. Actual guard release and ability cancellation still end guarding.
 - **Dodge while blocking** defaults to On. Off restores vanilla dodge and guard behavior, independently of parry timing. Switching waits for any active dodge to finish.
 - **Perfect dodge window** is independently adjustable from **10% to 5,000%**, with the same 20 percentage choices as parry. It defaults to **100%** (normal timing); **200%** doubles the native timing window.
+- **Dodge invulnerability adjustment** changes the normal and fatigued side/back dodge timers from **−75% to +5,000%**. **0%** keeps normal duration, **−75%** gives one-quarter duration, and **+100%** doubles it. Protection ends when its timer expires or the dodge ends or is cancelled, whichever happens first.
 - Forward dodges use native state-change and timed completion to restore held guard. Failed or cancelled attempts release their input suppression.
 - Native guard handling uses gameplay events. Optional Lua diagnostics observe transitions without changing guard or bindings.
-- Parry and perfect-dodge timing accept saved changes during play and load a fresh snapshot after save loading. The game handles dodge timing through its native combat settings, with no recurring timing checker or extra Lua callback per dodge.
+- Parry, perfect-dodge and invulnerability timing accept saved changes during play and load a fresh snapshot after save loading. The game handles dodge timing through its native combat settings, with no recurring timing checker or extra Lua callback per dodge.
 
 Requires a Dawnwalker-compatible **UE4SS 3.x** installation. The archive includes both the dodge asset and the parry timing script.
 
@@ -39,6 +40,6 @@ Mod Setting Menu 1.0.6 or later is required. Its callback bridge also requires `
 
 Settings are prepared when the game starts and are available from the main menu before the first save. Press **Apply** to save and update the active game. Changes made while loading are retained for the next valid player. Restore and Discard leave saved settings unchanged; Reset takes effect after Apply.
 
-Parry timing, perfect-dodge timing and dodge while blocking update independently. Timing changes use retained original values; returning to 100% restores normal timing. Parry timing Off restores only the parry override. Queued changes share one bounded worker.
+Parry timing, perfect-dodge timing, dodge invulnerability and dodge while blocking update independently. Returning parry/perfect-dodge timing to 100% or invulnerability adjustment to 0% restores the corresponding original timing. Parry timing Off restores only the parry override. Invulnerability changes apply to subsequent dodge timers. Queued changes share one bounded worker.
 
-Logging is the final, sole diagnostic control. It changes immediately; verbose logging is Off by default. Logs are written to `Dawnwalker/Binaries/Win64/ue4ss/UE4SS.log`. Dodge setup validates the actual player-owned ability instance and waits for its active lifetime to finish; it does not require a particular instancing-policy number. Settings are never polled.
+Logging is the final, sole diagnostic control. It changes immediately; verbose logging is Off by default. Logs are written to `Dawnwalker/Binaries/Win64/ue4ss/UE4SS.log`. Timing changes log their multiplier and verified before/after seconds when Logging is On. A timing-field failure identifies the affected field while other settings continue. Dodge setup validates the actual player-owned ability instance and waits for its active lifetime to finish; it does not require a particular instancing-policy number. Settings are never polled.

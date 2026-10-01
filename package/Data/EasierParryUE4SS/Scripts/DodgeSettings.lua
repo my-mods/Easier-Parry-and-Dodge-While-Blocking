@@ -46,14 +46,28 @@ local function write(object, enabled)
     assert(actual == enabled, 'Dodge owned tag write did not stick')
 end
 
-function M.start(resolvePlayer, log, diagnostics, vanillaDodge, windowFactor, scheduleLater)
+function M.start(resolvePlayer, log, diagnostics, vanillaDodge, windowFactor, scheduleLater, invulnerabilityFactor)
     scheduleLater=scheduleLater or ExecuteInGameThreadWithDelay
+    invulnerabilityFactor=invulnerabilityFactor or 1
     local playerReady=SaveLoadContext and SaveLoadContext.pawn~=nil
     local componentClass, dodgeClass, combatClass
-    local windowPending = windowFactor ~= 1
-    local windowTargets = {}
+    local timings = {
+        {field='PerfectDodgeWindow', label='Perfect dodge window', factor=windowFactor, targets={}},
+        {field='DodgeInvincibilityTime', label='Dodge invulnerability', factor=invulnerabilityFactor, targets={}},
+        {field='FatiguedDodgeInvincibilityTime', label='Fatigued dodge invulnerability', factor=invulnerabilityFactor, targets={}},
+    }
+    local timingCursor = 1
+    local function armTimings()
+        timingCursor=1
+        for _,timing in ipairs(timings) do
+            timing.pending=timing.factor~=1 or next(timing.targets)~=nil
+            timing.attempts=0
+        end
+    end
+    armTimings()
     local ownerAddress, componentAddress, cursor = nil, nil, 1
     local pending, running, dirty, attempts, found = false, false, false, 0, false
+    local timingsDirty = false
     local lastFailure
     local run, schedule
     local function failure(message)
@@ -109,40 +123,44 @@ function M.start(resolvePlayer, log, diagnostics, vanillaDodge, windowFactor, sc
         end, target)
         return true
     end
-    local function patchWindow(player)
+    local function patchTiming(player, timing)
         if not live(combatClass) then combatClass=StaticFindObject('/Script/DogwoodCombat.PlayerCombatComponent') end
-        if not live(combatClass) then return false end
+        if not live(combatClass) then return false, 'PlayerCombatComponent class unavailable' end
         local combat = player:GetComponentByClass(combatClass)
-        if not live(combat) then return false end
+        if not live(combat) then return false, 'Player combat component unavailable' end
         -- GetConfig returns the native config UObject, not a borrowed struct.
-        -- GA_Dodge reads this float for its existing perfect/ultra-dodge check.
+        -- The world subsystem shares this asset. Change only the requested scalar.
         local settings = combat:GetConfig()
-        if not live(settings) or settings:HasAnyFlags(0x1B630) then return false end
+        if not live(settings) then return false, 'Combat config unavailable' end
+        if settings:HasAnyFlags(0x1B630) then return false, 'Combat config is loading, a template, or being destroyed' end
         local name, classAddress = settings:GetFullName(), settings:GetClass():GetAddress()
-        local key = 'dodge-window:'..tostring(settings:GetAddress())..':'..name
+        local key = 'dodge-timing:'..timing.field..':'..tostring(settings:GetAddress())..':'..name
         local function get()
             if not live(settings) or settings:HasAnyFlags(0x18000) then return nil, false end
             local class = settings:GetClass()
             if not live(class) or class:GetAddress() ~= classAddress or settings:GetFullName() ~= name then return nil, false end
-            local value = settings.PerfectDodgeWindow
-            assert(type(value)=='number' and value>=0 and value<math.huge, 'Invalid native PerfectDodgeWindow')
+            local value = settings[timing.field]
+            assert(type(value)=='number' and value>=0 and value<math.huge, 'Invalid native '..timing.field)
             return value
         end
         local baseline = get()
-        if baseline == nil then return false end
+        if baseline == nil then return false, 'Combat config was replaced' end
         -- Repeated lifecycle events must not multiply an already adjusted asset.
-        local remembered = windowTargets[key]
-        if not remembered then remembered={base=baseline,last=baseline};windowTargets[key]=remembered
+        local remembered = timing.targets[key]
+        if not remembered then remembered={base=baseline,last=baseline};timing.targets[key]=remembered
         elseif math.abs(baseline-remembered.last)>1e-5*math.max(1,math.abs(remembered.last)) then remembered.base=baseline end
-        local target=remembered.base*windowFactor
+        local target=remembered.base*timing.factor
+        assert(target>=0 and target<=3.402823466e38, 'Native dodge timing exceeds float range')
         local changed = Session.change(key, get, function(value)
             local _, valid = get()
             assert(valid ~= false, 'Dodge timing config was replaced')
-            settings.PerfectDodgeWindow = value
+            settings[timing.field] = value
             remembered.last=value
             return true
         end, target)
-        if changed then diagnostics.debug('Perfect dodge window: x%.3f, %.4fs -> %.4fs', windowFactor, baseline, target) end
+        if changed and diagnostics.debugLogging then
+            diagnostics.debug('%s: x%.3f, %.4fs -> %.4fs (readback verified)', timing.label, timing.factor, baseline, target)
+        end
         return true
     end
     local function slice()
@@ -150,10 +168,24 @@ function M.start(resolvePlayer, log, diagnostics, vanillaDodge, windowFactor, sc
         local player = resolvePlayer()
         playerReady=live(player)
         if not playerReady then return 'waiting' end
-        if windowPending then
-            if not patchWindow(player) then return 'waiting' end
-            windowPending = false
-            return 'more' -- Separate timing and ability discovery across frames.
+        while timings[timingCursor] and not timings[timingCursor].pending do timingCursor=timingCursor+1 end
+        local timing=timings[timingCursor]
+        if timing then
+            local ok,applied,reason=pcall(patchTiming,player,timing)
+            if ok and applied then
+                timing.lastFailure=nil
+            else
+                timing.attempts=timing.attempts+1
+                if ok and timing.attempts<20 then return 'timing_waiting' end
+                local message=ok and reason or tostring(applied)
+                if message~=timing.lastFailure then
+                    timing.lastFailure=message
+                    log('Dodge timing %s: %s; retry on a settings change or lifecycle event',timing.field,message)
+                end
+            end
+            -- A missing/failed scalar must not disable other timing or guard settings.
+            timing.pending=false; timingCursor=timingCursor+1
+            return 'more' -- At most one timing field or ability slice per frame.
         end
         if not live(componentClass) then componentClass=StaticFindObject('/Script/GameplayAbilities.AbilitySystemComponent') end
         if not live(dodgeClass) then dodgeClass=StaticFindObject(CLASS) end
@@ -194,11 +226,16 @@ function M.start(resolvePlayer, log, diagnostics, vanillaDodge, windowFactor, sc
     local measuredSlice = diagnostics.wrap('dodgeSetup', slice)
     run = function()
         pending = false
+        if dirty then
+            dirty=false; cursor=1; found=false; attempts=0
+            if timingsDirty then armTimings(); timingsDirty=false end
+        end
         local ok, outcome = pcall(measuredSlice)
         if not ok then
             running=false; failure(tostring(outcome)); return
         end
         if outcome == 'more' then schedule(16); return end
+        if outcome == 'timing_waiting' then schedule(100); return end
         if outcome == 'waiting' then
             attempts=attempts+1; cursor=1; found=false
             if attempts < 20 then schedule(100); return end
@@ -206,27 +243,35 @@ function M.start(resolvePlayer, log, diagnostics, vanillaDodge, windowFactor, sc
             failure('Player dodge settings not ready or dodge still active; will retry on the next settings change or lifecycle event')
             return
         end
-        if dirty then dirty=false; cursor=1; found=false; windowPending=windowFactor~=1 or next(windowTargets)~=nil; schedule(16); return end
+        if dirty then schedule(16); return end
         running=false; lastFailure=nil
         diagnostics.debug('Native dodge settings applied')
         diagnostics.flush(true)
     end
-    local function wake()
+    local function wake(refreshTimings)
+        if refreshTimings then timingsDirty=true end
         if running then dirty=true; return end
         running=true; dirty=false; attempts=0; cursor=1; found=false
-        windowPending=windowFactor~=1 or next(windowTargets)~=nil
+        if timingsDirty then armTimings(); timingsDirty=false end
         schedule(16)
     end
+    local function wakeAll() wake(true) end
+    local function wakeGuard() wake(false) end
     -- Construction only schedules work. All reflection happens in registered game-thread callbacks.
     for _,path in ipairs({CLASS,'/Script/DogwoodCombat.PlayerCombatComponent'}) do
-        local ok,err=pcall(NotifyOnNewObject,path,wake)
+        local ok,err=pcall(NotifyOnNewObject,path,path==CLASS and wakeGuard or wakeAll)
         if not ok then failure('Dodge notifications unavailable: '..tostring(err)) end
     end
-    local function update(vanilla,factor)
-        local changed=vanillaDodge~=vanilla or windowFactor~=factor
+    local function update(vanilla,factor,invulnerability)
+        invulnerability=invulnerability or 1
+        local changed=vanillaDodge~=vanilla or windowFactor~=factor or invulnerabilityFactor~=invulnerability
         vanillaDodge,windowFactor=vanilla,factor
-        if playerReady and (changed or not running) then wake() end
+        invulnerabilityFactor=invulnerability
+        timings[1].factor=factor
+        timings[2].factor=invulnerability
+        timings[3].factor=invulnerability
+        if playerReady and (changed or not running) then wakeAll() end
     end
-    return wake,update
+    return wakeAll,update
 end
 return M

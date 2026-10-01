@@ -126,7 +126,10 @@ end
 local function loadBlocking(directory, schema, seed)
     return loadAdded(directory, schema, seed, 'dodgeWhileBlocking', '.before-dodge-setting', loadTiming)
 end
-function M.load(directory, schema, seed)
+local function loadPerfectWindow(directory, schema, seed)
     return loadAdded(directory, schema, seed, 'dodgeWindowPercent', '.before-dodge-window', loadBlocking)
+end
+function M.load(directory, schema, seed)
+    return loadAdded(directory, schema, seed, 'dodgeInvulnerabilityPercent', '.before-dodge-invulnerability', loadPerfectWindow)
 end
 return M
