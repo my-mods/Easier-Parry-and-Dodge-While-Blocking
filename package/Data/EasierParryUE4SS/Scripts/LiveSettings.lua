@@ -9,7 +9,7 @@ function M.new(directory, report)
         ["parryWindowPercent"]="parryWindowPercent",
         ["dodgeWhileBlocking"]="dodgeWhileBlocking",
         ["dodgeWindowPercent"]="dodgeWindowPercent",
-        ["dodgeInvulnerabilityPercent"]="dodgeInvulnerabilityPercent",
+        ["dodgeInvulnerabilityWindowPercent"]="dodgeInvulnerabilityWindowPercent",
         ["debugLogging"]="debugLogging"
         }})
     live.start(function(id,callback)

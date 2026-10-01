@@ -4,5 +4,5 @@
 
 ## Pending changes
 
-- Add an independent dodge invulnerability adjustment from −75% to +5,000%, with normal duration at 0%.
+- Add an independent dodge invulnerability window from 25% to 5,000%, with normal duration at 100%.
 - Apply timing changes while guard setup is waiting and identify timing-field failures separately.

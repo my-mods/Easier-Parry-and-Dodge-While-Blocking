@@ -70,7 +70,7 @@ local function loadTiming(directory, schema, seed)
     return values
 end
 
-local function loadAdded(directory, schema, seed, key, suffix, previous)
+local function loadAdded(directory, schema, seed, key, suffix, previous, initialValue)
     local Store = dofile(directory..'SettingsStore.lua')
     local path = Store.path(directory)
     local text, err, code = Store.read(path)
@@ -112,7 +112,7 @@ local function loadAdded(directory, schema, seed, key, suffix, previous)
         local clean = line:gsub('^\239\187\191',''):gsub('[;#].*$','')
         if clean:match('^%s*%[Settings%]%s*$') then
             count = count + 1
-            return line..newline..key..' = '..string.format('%.17g',added.default)
+            return line..newline..key..' = '..string.format('%.17g',initialValue or added.default)
         end
         return line
     end)
@@ -130,6 +130,22 @@ local function loadPerfectWindow(directory, schema, seed)
     return loadAdded(directory, schema, seed, 'dodgeWindowPercent', '.before-dodge-window', loadBlocking)
 end
 function M.load(directory, schema, seed)
-    return loadAdded(directory, schema, seed, 'dodgeInvulnerabilityPercent', '.before-dodge-invulnerability', loadPerfectWindow)
+    local key = 'dodgeInvulnerabilityWindowPercent'
+    local Store = dofile(directory..'SettingsStore.lua')
+    local text = Store.read(Store.path(directory))
+    local initialValue
+    if text then
+        local current = {{key=key, min=25, max=5000}}
+        local value, err = Store.parse(text, current)
+        if not value and err == 'Missing setting: '..key then
+            -- An earlier development build stored percentage increases. Keep
+            -- those durations within the corrected range; never reinterpret 100 as 1x.
+            local oldKey = 'dodgeInvulnerabilityPercent'
+            local legacy, legacyError = Store.parse(text, {{key=oldKey, min=-75, max=5000}})
+            if legacy then initialValue = math.min(5000, legacy[oldKey]+100)
+            elseif legacyError ~= 'Missing setting: '..oldKey then return nil, legacyError end
+        end
+    end
+    return loadAdded(directory, schema, seed, key, '.before-dodge-invulnerability-window', loadPerfectWindow, initialValue)
 end
 return M

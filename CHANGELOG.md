@@ -16,7 +16,7 @@
 
 ## Unreleased
 
-- Add an independent dodge invulnerability adjustment from −75% to +5,000% for normal and fatigued side/back dodge timers.
+- Add an independent dodge invulnerability window from 25% to 5,000% for normal and fatigued side/back dodge timers, with normal duration at 100%.
 - Apply timing edits received while guard setup is waiting, and keep unaffected timing fields available if another field fails.
 - Apply dodge settings to validated player-owned instances without rejecting an assumed instancing-policy value.
 - Add an independent Perfect dodge window percentage setting using the game's native timing check, with normal timing as the default.

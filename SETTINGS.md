@@ -12,7 +12,7 @@ Missing, duplicate or invalid settings stop configuration loading and are report
 | Parry | Parry window | 20 percentage choices from 10% to 5,000% |
 | Dodge | Dodge while blocking | Off, On (default) |
 | Dodge | Perfect dodge window | 20 percentage choices from 10% to 5,000%; default 100% |
-| Dodge | Dodge invulnerability adjustment | 20 percentage choices from −75% to +5,000%; default 0% |
+| Dodge | Dodge invulnerability window | 20 percentage choices from 25% to 5,000%; default 100% |
 | Diagnostics | Logging | Off, On |
 
 **Parry window presets:** 10%, 25%, 50%, 75%, 100%, 125%, 150%, 175%, 200%, 250%, 300%, 400%, 500%, 750%, 1,000%, 1,500%, 2,000%, 3,000%, 4,000%, and 5,000%. The spacing keeps smaller adjustments close together and reaches large windows quickly.
@@ -27,13 +27,13 @@ Reset restores the 200% default. For manual INI edits, `parryWindowPercent` acce
 
 For manual edits, close the game and change `dodgeWindowPercent` in the generated `settings.ini` (10 to 5000). Values between menu presets work in gameplay; the menu requires a listed value. Existing settings receive the new 100% default at startup, with the previous file retained as `settings.ini.before-dodge-window`.
 
-**Dodge invulnerability adjustment:** Scales the game's normal and fatigued side/back dodge protection timers independently of the other controls. Unlike the parry and perfect-dodge percentages, this is a percentage change: **0%** keeps the normal duration, **−75%** gives one-quarter duration, **+100%** doubles it, and **+5,000%** gives 51 times the original timer. Reset restores **0%**. Both timers retain their own baseline; a zero baseline remains zero.
+**Dodge invulnerability window:** Scales the game's normal and fatigued side/back dodge protection timers independently of the other controls. **100%** keeps the normal duration, **25%** gives one-quarter duration, **200%** doubles it, and **5,000%** gives 50 times the original timer. Reset restores **100%**. Both timers retain their own baseline; a zero baseline remains zero.
 
-Presets: −75%, −50%, −25%, 0%, +25%, +50%, +75%, +100%, +150%, +200%, +300%, +400%, +500%, +750%, +1,000%, +1,500%, +2,000%, +3,000%, +4,000%, and +5,000%.
+Presets: 25%, 50%, 75%, 100%, 125%, 150%, 175%, 200%, 250%, 300%, 400%, 500%, 750%, 1,000%, 1,500%, 2,000%, 2,500%, 3,000%, 4,000%, and 5,000%.
 
 Press Apply to save and use the new duration for subsequent dodges. The game removes protection when the timer expires or the dodge ends or is cancelled, whichever happens first. High percentages do not grant protection after leaving the dodge. Forward dodges use a separate effect and are not changed by this control. Animation speed, stamina costs and dodge activation rules remain the same.
 
-For manual edits, close the game and set `dodgeInvulnerabilityPercent` in the generated `settings.ini` to a number from −75 to 5000. Values between presets work in gameplay; use a listed value when opening the menu. Existing files receive only the new 0% assignment, with the previous file retained as `settings.ini.before-dodge-invulnerability`.
+For manual edits, close the game and set `dodgeInvulnerabilityWindowPercent` in the generated `settings.ini` to a number from 25 to 5000. Values between presets work in gameplay; use a listed value when opening the menu. Existing files receive the new 100% default. Values saved by the earlier increase-based control are converted to percentages of normal duration, capped at 5000%. The previous file is retained as `settings.ini.before-dodge-invulnerability-window`.
 
 Console commands are not used to change settings.
 
@@ -60,4 +60,4 @@ Mod Setting Menu 1.0.6 or later is required. Its callback bridge also requires `
 
 Settings are prepared when the game starts and are available from the main menu before the first save. Press **Apply** to save and update the active game. Changes made while loading are retained for the next valid player. Restore and Discard leave saved settings unchanged; Reset takes effect after Apply.
 
-Parry timing, perfect-dodge timing, dodge invulnerability and dodge while blocking update independently. Returning parry/perfect-dodge timing to 100% or invulnerability adjustment to 0% restores the corresponding original timing. Parry timing Off restores only the parry override. Queued changes share one bounded worker. With Logging On, changed timing fields report their multiplier and verified before/after seconds; an unavailable field reports its name while other settings continue.
+Parry timing, perfect-dodge timing, dodge invulnerability and dodge while blocking update independently. Returning any timing window to 100% restores the corresponding original timing. Parry timing Off restores only the parry override. Queued changes share one bounded worker. With Logging On, changed timing fields report their multiplier and verified before/after seconds; an unavailable field reports its name while other settings continue.
