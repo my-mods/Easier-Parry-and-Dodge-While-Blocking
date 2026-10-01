@@ -16,6 +16,7 @@
 
 ## Unreleased
 
+- Fix missed directional ripostes when the game resolves a successful parry during the hit reaction.
 - Add independent Riposte direction choices: Vanilla (Random), Opposite direction (default), and Same direction.
 - Keep directional openings tied to the attack successfully parried when guard input clears or changes.
 

@@ -67,4 +67,4 @@ Settings are prepared when the game starts and are available from the main menu 
 
 Riposte direction, parry timing, perfect-dodge timing, dodge invulnerability and dodge while blocking update independently. Returning any timing window to 100% restores the corresponding original timing. Parry timing Off restores only the parry override. Queued changes share one bounded worker. With Logging On, changed timing fields report their multiplier and verified before/after seconds; an unavailable field reports its name while other settings continue.
 
-Native riposte diagnostics are aggregated at most once every five seconds while opening queries occur. Logging Off skips diagnostic counters, formatting and timing. No polling runs between events.
+Native riposte diagnostics are aggregated at most once every five seconds during hit reactions and opening queries. They distinguish confirmed parries, applied directions, openings without a saved direction, and records cleared by expiry, attacks, dodges or newer reactions. Logging Off skips diagnostic counters, formatting and timing. No polling runs between events.

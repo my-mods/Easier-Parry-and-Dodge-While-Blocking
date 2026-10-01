@@ -10,6 +10,7 @@
 #include <atomic>
 #include <bit>
 #include <cstring>
+#include <intrin.h>
 #include "Bridge.hpp"
 #include "GameBuild.hpp"
 #include "RiposteScript.hpp"
@@ -25,7 +26,14 @@ DWORD gameThread{};
 std::atomic_bool active{};
 bool installed{},attempted{},riposteSupported{},listening{},slotOwned{};
 std::wstring startError;
-std::array<void*,3> hooked{};size_t hookCount{};
+std::array<void*,4> hooked{};size_t hookCount{};
+struct Metrics {
+    uint64_t riposteParries{},riposteQueries{},riposteApplied{},riposteMisses{},riposteMicros{},riposteGuardDrift{};
+    uint64_t decisions{},lateResponses{},expired{},attackClears{},dodgeClears{},replaced{},emptyQueries{};
+} metrics;
+uint64_t sessionGeneration{};
+struct HitContext {void* combat;void* attack;void* response;uint64_t generation;bool decided{};};
+thread_local HitContext* currentHit{};
 struct Identity {uintptr_t address{};int index{-1},serial{};bool operator==(const Identity&)const=default;};
 Identity identity(void* object) {
     if(!object)return {};
@@ -67,7 +75,7 @@ void clearRiposte(size_t i) {
     ripostes[i]={};session.watched[1+i*2]=-1;session.watched[2+i*2]=-1;
 }
 void clearRipostes(){while(riposteMask)clearRiposte(std::countr_zero(riposteMask));}
-void clearSession(){clearRipostes();ownerId={};session.watched[0]=-1;}
+void clearSession(){clearRipostes();ownerId={};session.watched[0]=-1;++sessionGeneration;}
 bool live(){return active.load(std::memory_order_relaxed)&&GetCurrentThreadId()==gameThread;}
 bool managed(void* combat) {
     const auto deleted=session.invalidated.exchange(0,std::memory_order_acq_rel);
@@ -87,7 +95,7 @@ double expireRipostes(void* combat) {
     const double now=at<double(*)(void*)>(Build::WorldTime)(combat);
     for(auto pending=riposteMask;pending;pending&=pending-1){
         const auto i=std::countr_zero(pending);const double age=now-ripostes[i].captured;
-        if(!std::isfinite(now)||age<0||age>=1.0)clearRiposte(i);
+        if(!std::isfinite(now)||age<0||age>=1.0){if(settings.debugLogging)++metrics.expired;clearRiposte(i);}
     }
     return now;
 }
@@ -96,7 +104,7 @@ Script originalRiposteQuery{};
 bool(*originalQueueAttack)(void*,void*){};
 void(*originalOnDodge)(void*,void*){};
 void(*originalReactToHit)(void*,void*,void*,void*){};
-struct Metrics {uint64_t riposteParries{},riposteQueries{},riposteApplied{},riposteMisses{},riposteMicros{},riposteGuardDrift{};} metrics;
+uint8_t(*originalResolveReaction)(void*,uint8_t,void*){};
 uint64_t nextReport{};
 uint64_t clockMicros(){LARGE_INTEGER t,f;QueryPerformanceCounter(&t);QueryPerformanceFrequency(&f);return t.QuadPart/f.QuadPart*1000000+t.QuadPart%f.QuadPart*1000000/f.QuadPart;}
 void reportMetrics() {
@@ -105,29 +113,41 @@ void reportMetrics() {
     RC::Output::send(L"[EasierParry] Riposte mode="+std::to_wstring(settings.riposteDirection)+
         L" parries="+std::to_wstring(metrics.riposteParries)+L" queries="+std::to_wstring(metrics.riposteQueries)+
         L" applied="+std::to_wstring(metrics.riposteApplied)+L" misses="+std::to_wstring(metrics.riposteMisses)+
-        L" queryUs="+std::to_wstring(metrics.riposteMicros)+L" guardDrift="+std::to_wstring(metrics.riposteGuardDrift)+L"\n");
+        L" queryUs="+std::to_wstring(metrics.riposteMicros)+L" guardDrift="+std::to_wstring(metrics.riposteGuardDrift)+
+        L" decisions="+std::to_wstring(metrics.decisions)+L" lateResponses="+std::to_wstring(metrics.lateResponses)+
+        L" expired="+std::to_wstring(metrics.expired)+L" attackClears="+std::to_wstring(metrics.attackClears)+
+        L" dodgeClears="+std::to_wstring(metrics.dodgeClears)+L" replaced="+std::to_wstring(metrics.replaced)+
+        L" emptyQueries="+std::to_wstring(metrics.emptyQueries)+L"\n");
 }
 void riposteUnavailable(const std::wstring& reason) {
     riposteSupported=false;clearRipostes();
     RC::Output::send(L"[EasierParry] Riposte direction unavailable: "+reason+L". Using vanilla openings; parry timing and dodge features remain available.\n");
 }
-void rememberRiposte(void* combat,void* attack,void* response) {
+void replaceReaction(void* attack) {
     auto target=field<void*>(attack,0x28);
     // Another reaction from this enemy replaces its old pending parry, even
     // when this hit was an ordinary block, omniblock or an unguarded hit.
     for(auto pending=riposteMask;pending;pending&=pending-1){
         const auto i=std::countr_zero(pending);
-        if(ripostes[i].combat.address==reinterpret_cast<uintptr_t>(target))clearRiposte(i);
+        if(ripostes[i].combat.address==reinterpret_cast<uintptr_t>(target)){
+            if(settings.debugLogging)++metrics.replaced;
+            clearRiposte(i);
+        }
     }
+}
+void rememberRiposte(void* combat,void* attack) {
+    auto target=field<void*>(attack,0x28);
     // Native parries can use the previous guard after the current guard clears
     // or moves. The incoming hit keeps the direction that was actually parried.
     const auto block=parriedBlock(field<uint8_t>(attack,0x18));
-    auto parry=field<void*>(combat,0x268);
-    if(!target||target==combat||!response||!parry||field<void*>(response,0)!=parry||riposteSide(block,settings.riposteDirection)<0)return;
+    if(!target||target==combat||riposteSide(block,settings.riposteDirection)<0)return;
     const auto targetId=identity(target);if(!targetId.address)return;
     const auto stubId=identity(field<void*>(target,0x1070));if(!stubId.address)return;
     const auto now=expireRipostes(combat);
     if(!std::isfinite(now))return;
+    // A nested reaction may have recorded this enemy since our entry. Keep
+    // exactly one record, belonging to the latest confirmed native decision.
+    replaceReaction(attack);
     size_t slot=0;
     for(size_t i=0;i<ripostes.size();++i){
         if(!(riposteMask&(1u<<i))){slot=i;break;}
@@ -142,6 +162,23 @@ void rememberRiposte(void* combat,void* attack,void* response) {
         ++metrics.riposteParries;
         if(field<uint8_t>(combat,0x960)!=block)++metrics.riposteGuardDrift;
     }
+}
+uint8_t resolveReaction(void* combat,uint8_t candidate,void* attackerWeapon) {
+    const auto result=originalResolveReaction(combat,candidate,attackerWeapon);
+    auto hit=currentHit;
+    if(!hit||hit->combat!=combat||hit->decided||reinterpret_cast<uintptr_t>(_ReturnAddress())!=moduleBase+Build::ResolveReactionReturn||
+       !live()||!riposteSupported||!settings.riposteDirection||hit->generation!=sessionGeneration)return result;
+    hit->decided=true;
+    if(!managed(combat)||hit->generation!=sessionGeneration)return result;
+    if(settings.debugLogging)++metrics.decisions;
+    // The checked base ReactToHit switch assigns the parry action for result 2,
+    // then notifies the enemy. Capture before that notification can create its
+    // opening, but after the game has finished resolving the hit outcome.
+    if(result==2){
+        if(settings.debugLogging&&(!hit->response||field<void*>(hit->response,0)!=field<void*>(combat,0x268)))++metrics.lateResponses;
+        rememberRiposte(combat,hit->attack);
+    }
+    return result;
 }
 bool riposteGraph(void* frame) {
     auto node=field<void*>(frame,0x10),task=field<void*>(frame,0x18);
@@ -175,9 +212,10 @@ bool riposteGraph(void* frame) {
 }
 void applyRiposte(void* combat,void* frame,void* result) {
     if(!managed(combat))return;
-    expireRipostes(combat);
-    if(!riposteMask||!riposteGraph(frame))return;
+    if(!riposteGraph(frame))return;
     if(settings.debugLogging)++metrics.riposteQueries;
+    expireRipostes(combat);
+    if(!riposteMask){if(settings.debugLogging)++metrics.emptyQueries;return;}
     auto task=field<void*>(frame,0x18),stub=field<void*>(task,0x28);
     bool applied=false;
     for(auto pending=riposteMask;pending;pending&=pending-1){
@@ -197,9 +235,10 @@ void applyRiposte(void* combat,void* frame,void* result) {
 }
 void riposteQuery(void* combat,void* frame,void* result) {
     originalRiposteQuery(combat,frame,result);
-    if(!live()||!riposteSupported||!settings.riposteDirection||!riposteMask||!frame||!result)return;
+    if(!live()||!riposteSupported||!settings.riposteDirection||(!riposteMask&&!settings.debugLogging)||!frame||!result)return;
     const auto before=settings.debugLogging?clockMicros():0;
-    applyRiposte(combat,frame,result);
+    if(riposteMask)applyRiposte(combat,frame,result);
+    else if(riposteGraph(frame)){++metrics.riposteQueries;++metrics.emptyQueries;}
     // Include context and bytecode validation, not just the final record lookup.
     if(settings.debugLogging){metrics.riposteMicros+=clockMicros()-before;reportMetrics();}
 }
@@ -207,18 +246,34 @@ bool queueAttack(void* combat,void* tags) {
     if(!live()||!riposteMask||ownerId.address!=reinterpret_cast<uintptr_t>(combat))return originalQueueAttack(combat,tags);
     const auto sequence=riposteSequence;
     const auto result=originalQueueAttack(combat,tags);
-    if(result&&live()&&riposteMask&&ownerId.address==reinterpret_cast<uintptr_t>(combat)&&sequence==riposteSequence)clearRipostes();
+    if(result&&live()&&riposteMask&&ownerId.address==reinterpret_cast<uintptr_t>(combat)&&sequence==riposteSequence){
+        if(settings.debugLogging)metrics.attackClears+=std::popcount(riposteMask);
+        clearRipostes();
+    }
     return result;
 }
 void onDodge(void* combat,void* direction) {
-    if(live()&&riposteMask&&ownerId.address==reinterpret_cast<uintptr_t>(combat))clearRipostes();
+    if(live()&&riposteMask&&ownerId.address==reinterpret_cast<uintptr_t>(combat)){
+        if(settings.debugLogging)metrics.dodgeClears+=std::popcount(riposteMask);
+        clearRipostes();
+    }
     originalOnDodge(combat,direction);
 }
 
 void reactToHit(void* combat,void* animation,void* attack,void* response) {
-    if(live()&&riposteSupported&&settings.riposteDirection&&attack&&managed(combat))rememberRiposte(combat,attack,response);
-    // Forward the existing entry, including Combat Camera's entry detour.
+    if(!live()||!riposteSupported||!settings.riposteDirection||!attack||!managed(combat)){
+        originalReactToHit(combat,animation,attack,response);return;
+    }
+    replaceReaction(attack);
+    HitContext hit{combat,attack,response,sessionGeneration};
+    // Stack-scoped and thread-local: nested hits restore their caller's context,
+    // and another thread cannot read these borrowed attack/response pointers.
+    struct Scope {HitContext* previous;~Scope(){currentHit=previous;}} scope{currentHit};
+    currentHit=&hit;
+    // Forward the existing entry, including Combat Camera's entry detour. The
+    // response is an output; inspecting it here would read an unfinished result.
     originalReactToHit(combat,animation,attack,response);
+    if(settings.debugLogging)reportMetrics();
 }
 template<class Fn> void hook(uintptr_t rva,Fn detour,Fn& original) {
     auto address=at<void*>(rva);
@@ -281,6 +336,7 @@ bool start(std::wstring& error) {
         hook(Build::RiposteQuery,&riposteQuery,originalRiposteQuery);
         hook(Build::QueueAttack,&queueAttack,originalQueueAttack);
         hook(Build::OnDodge,&onDodge,originalOnDodge);
+        hook(Build::ResolveReaction,&resolveReaction,originalResolveReaction);
         originalReactToHit=at<decltype(originalReactToHit)>(Build::ReactToHit);
         FUObjectArray::AddUObjectDeleteListener(&session);listening=true;
         if(MH_ApplyQueued()!=MH_OK)throw std::runtime_error("Riposte hook activation failed");
