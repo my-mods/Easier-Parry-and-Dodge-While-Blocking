@@ -1,3 +1,10 @@
+## 1.4.0 — 2026-10-01
+
+- Add independent Riposte direction choices: Vanilla (Random), Opposite direction (default), and Same direction.
+- Fix missed directional ripostes when the game resolves a successful parry during the hit reaction, and retain the parried attack direction when guard input changes.
+- Add an independent dodge invulnerability window from 25% to 5,000% for normal and fatigued side/back dodges, with normal duration at 100%.
+- Apply timing changes while guard setup is waiting and keep unaffected timing settings available if another timing field fails.
+
 ## 1.3.2
 
 - Fix Dodge while blocking being rejected for valid player dodge instances.
@@ -13,27 +20,6 @@
 - Apply timing and dodge settings during play without loading a save.
 - Restore parry settings after missed loading notifications or delayed player initialization.
 - Replace console settings commands with one settings menu and a single Logging switch.
-
-## Unreleased
-
-- Fix missed directional ripostes when the game resolves a successful parry during the hit reaction.
-- Add independent Riposte direction choices: Vanilla (Random), Opposite direction (default), and Same direction.
-- Keep directional openings tied to the attack successfully parried when guard input clears or changes.
-
-- Add an independent dodge invulnerability window from 25% to 5,000% for normal and fatigued side/back dodge timers, with normal duration at 100%.
-- Apply timing edits received while guard setup is waiting, and keep unaffected timing fields available if another field fails.
-- Apply dodge settings to validated player-owned instances without rejecting an assumed instancing-policy value.
-- Add an independent Perfect dodge window percentage setting using the game's native timing check, with normal timing as the default.
-
-- Add native dodge eligibility/commit results, animation selection, combat-state snapshots and explicit ability end/cancel diagnostics when Blueprint tracing is unavailable.
-
-- Stop repeated Blueprint diagnostic hook failures when the Lua dispatcher is unavailable, while preserving native combat tracing across save loads.
-
-- Add an independent Dodge while blocking toggle to Mod Settings, enabled by default.
-
-- Restore parry settings after loads with missed loading notifications or delayed player initialization.
-
-- Simplify diagnostics to a single Logging switch at the end of Mod Settings.
 
 # Changes
 
