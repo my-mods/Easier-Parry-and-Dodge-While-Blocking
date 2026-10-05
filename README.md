@@ -15,7 +15,7 @@ Makes parrying more forgiving in *The Blood of Dawnwalker*. Includes native guar
 - Native guard handling uses gameplay events. Optional Lua diagnostics observe transitions without changing guard or bindings.
 - Parry, perfect-dodge and invulnerability timing accept saved changes during play and load a fresh snapshot after save loading. The game handles dodge timing through its native combat settings, with no recurring timing checker or extra Lua callback per dodge.
 
-Requires a Dawnwalker-compatible **UE4SS 3.x** installation. The archive includes the dodge asset, parry timing script and native riposte helper.
+Requires [UE4SS for Dawnwalker by Vercadi](https://www.nexusmods.com/thebloodofdawnwalker/mods/18) **1.3 (RC6) or later**. The archive includes the dodge asset, parry timing script and native riposte helper.
 
 ## Installation
 
