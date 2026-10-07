@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "packages": {
+    "main": {
+      "id": "EasierParryUE4SS",
+      "name": "Easier Parry and Dodge While Blocking",
+      "archive": "Easier-Parry-and-Dodge-While-Blocking.zip",
+      "packageFormat": 1,
+      "baseline": {
+        "kind": "nexus",
+        "version": "1.4.0",
+        "normalizedVersion": "1.4.0",
+        "sourceCommit": "77da982a948b6b6d03cac2c17ef77a542741cf88",
+        "sourceTag": "v1.4.0",
+        "archiveSha256": "5fea065004fe080be8c7786ebe402caa7c4995a8bc6fbebe338ca091a835ad97",
+        "verifiedAt": "2026-10-07T12:13:10.7045198Z",
+        "nexus": {
+          "game": "thebloodofdawnwalker",
+          "pageId": "161",
+          "modId": "41742787149985",
+          "fileChainId": "7914354",
+          "versionId": "41742787152806",
+          "siteFileId": "2982"
+        }
+      },
+      "bindings": [
+        {
+          "path": "Nexus/metadata.json",
+          "jsonPointer": [
+            "version"
+          ],
+          "members": []
+        },
+        {
+          "path": "native/main.cpp",
+          "pattern": "ModVersion\\s*=\\s*(?:STR\\(|L)?\"(?P<version>[^\"]+)\"",
+          "count": 1,
+          "members": []
+        },
+        {
+          "path": "package/Data/EasierParryUE4SS/mod_settings.ini",
+          "pattern": "^Version\\s*=\\s*(?P<version>[^\\r\\n]+)",
+          "count": 1,
+          "members": [
+            "Dawnwalker/Binaries/Win64/ue4ss/Mods/EasierParryUE4SS/mod_settings.ini"
+          ]
+        },
+        {
+          "path": "package/mod.manifest",
+          "pattern": "<version>(?P<version>[^<]+)</version>",
+          "count": 1,
+          "members": [
+            "mod.manifest"
+          ]
+        }
+      ],
+      "excludePaths": [
+        "Optional",
+        "Compatibility",
+        "VortexExtension"
+      ],
+      "pending": {
+        "impact": "patch",
+        "rationale": "Correct shipped dependency documentation and package version metadata; runtime behavior matches the published release.",
+        "majorOverride": false,
+        "reviewedInputs": "57abca3432962dd4d419a86260d6a2431e48870fcc3cd4bac5456f084d70b187",
+        "divergenceReviewed": false
+      }
+    }
+  }
+}
