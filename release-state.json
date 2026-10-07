@@ -63,7 +63,7 @@
         "impact": "patch",
         "rationale": "Correct shipped dependency documentation and package version metadata; runtime behavior matches the published release.",
         "majorOverride": false,
-        "reviewedInputs": "57abca3432962dd4d419a86260d6a2431e48870fcc3cd4bac5456f084d70b187",
+        "reviewedInputs": "91d362cb44f28960bd692849e3c012713c00e4f54df8486da3eb2f67df468420",
         "divergenceReviewed": false
       }
     }
