@@ -57,7 +57,7 @@ These events restore decision details without requiring Blueprint hooks. They do
 
 The trace is read-only, filters exact ability classes and local player contexts, and uses bounded event/snapshot/output budgets. It does not retry inputs, call eligibility/commit functions to obtain diagnostic results, retain borrowed return structs, scan for objects during events, or add an idle polling worker. Actually unloaded Blueprint functions retain finite retries after relevant construction events. Restart the game after changing the loader profile to check its capabilities again.
 
-Trace output is limited to 2,048 records per save-load capture. Load a save for a new capture. Logging Off disables diagnostic capture and pending trace work without changing parry timing or dodge behavior.
+Trace output is limited to 2,048 records per save-load capture. Load a save for a new capture. Logging below Debug disables diagnostic capture and pending trace work without changing parry timing or dodge behavior.
 
 ## Live Apply
 
@@ -65,6 +65,6 @@ Mod Setting Menu 1.0.6 or later is required. Its callback bridge also requires `
 
 Settings are prepared when the game starts and are available from the main menu before the first save. Press **Apply** to save and update the active game. Changes made while loading are retained for the next valid player. Restore and Discard leave saved settings unchanged; Reset takes effect after Apply.
 
-Riposte direction, parry timing, perfect-dodge timing, dodge invulnerability and dodge while blocking update independently. Returning any timing window to 100% restores the corresponding original timing. Parry timing Off restores only the parry override. Queued changes share one bounded worker. With Logging On, changed timing fields report their multiplier and verified before/after seconds; an unavailable field reports its name while other settings continue.
+Riposte direction, parry timing, perfect-dodge timing, dodge invulnerability and dodge while blocking update independently. Returning any timing window to 100% restores the corresponding original timing. Parry timing Off restores only the parry override. Queued changes share one bounded worker. With Logging Debug, changed timing fields report their multiplier and verified before/after seconds; an unavailable field reports its name while other settings continue.
 
-Native riposte diagnostics are aggregated at most once every five seconds during hit reactions and opening queries. They distinguish confirmed parries, applied directions, openings without a saved direction, and records cleared by expiry, attacks, dodges or newer reactions. Logging Off skips diagnostic counters, formatting and timing. No polling runs between events.
+Native riposte diagnostics are aggregated at most once every five seconds during hit reactions and opening queries. They distinguish confirmed parries, applied directions, openings without a saved direction, and records cleared by expiry, attacks, dodges or newer reactions. Logging below Debug skips diagnostic counters, formatting and timing. No polling runs between events.

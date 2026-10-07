@@ -31,7 +31,7 @@ Use [Mod Setting Menu 1.0.6 or later](https://www.nexusmods.com/thebloodofdawnwa
 The saved key is `riposteDirection`: 0 = Vanilla (Random), 1 = Opposite direction (default), 2 = Same direction. Existing parry settings receive this new default with the original file retained as `settings.ini.before-riposte-direction`. Choose the desired mode in this mod; the old Combat Camera preference is no longer used. No complete INI replacement is required.
  Console settings commands are retired.
 
-With Logging On, native combat tracing records dodge state-check and ability-commit results, selected dodge direction, explicit ability end/cancel calls, and combat-state/input-tag snapshots. These diagnostics work independently of Blueprint tracing. An unavailable Blueprint dispatcher is reported once per mod launch; save loads do not restart those failed attempts.
+With Logging Debug, native combat tracing records dodge state-check and ability-commit results, selected dodge direction, explicit ability end/cancel calls, and combat-state/input-tag snapshots. These diagnostics work independently of Blueprint tracing. An unavailable Blueprint dispatcher is reported once per mod launch; save loads do not restart those failed attempts.
 
 Created by **oOCamilleOo**. Original mod code is under the [MIT license](LICENSE); underlying game assets remain the property of their respective rights holders. Nexus listing materials are maintained separately in [Nexus](Nexus/README.txt).
 
@@ -53,3 +53,7 @@ Logging is the final, sole diagnostic control. It changes immediately; verbose l
 Riposte direction records the attack when the game confirms a successful parry, before notifying the enemy. It uses bounded, one-use enemy records and native gameplay time, with no per-frame timer or polling. Logging includes aggregate parry, opening-query, applied-override and guard-drift counts with query time. It also reports openings without a saved direction and records cleared by expiry, attacks, dodges or newer reactions. A failed native or opening-task contract keeps vanilla openings and reports the affected dependency; other parry and dodge features remain available.
 
 The native helper is MIT-licensed, with MinHook, UE4SS and fmt notices in LICENSES. See [BUILD.md](BUILD.md) for native build instructions.
+
+### Logging
+
+Logging is the final diagnostic setting: **Off**, **Error**, **Warning** (default), **Info**, or **Debug**. Levels include all more severe messages. Off silences this mod; Debug includes detailed events and timing summaries in `Dawnwalker/Binaries/Win64/ue4ss/UE4SS.log`. Old Logging Debug preferences become Debug; old Off preferences become Warning.

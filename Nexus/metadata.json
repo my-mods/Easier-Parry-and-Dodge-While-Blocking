@@ -1,6 +1,6 @@
 {
   "name": "Easier Parry and Dodge While Blocking",
-  "version": "1.4.1-dev",
+  "version": "1.5.0-dev",
   "game": "The Blood of Dawnwalker",
   "nexusDomain": "thebloodofdawnwalker",
   "summary": "Configurable parry timing with guard recovery after dodging and base-game attack behavior.",

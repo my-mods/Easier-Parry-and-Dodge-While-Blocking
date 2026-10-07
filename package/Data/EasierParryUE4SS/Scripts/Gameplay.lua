@@ -30,7 +30,7 @@ local SetGuardTracing
 local lastFailure = nil
 
 local scriptDirectory = assert(SCRIPT_SOURCE:gsub('^@',''):match('^(.*[/\\])'))
-local Diagnostics = dofile(scriptDirectory .. 'UE4SSCommonDiagnostics.lua')
+local Diagnostics = dofile(scriptDirectory .. 'ModDiagnostics.lua')
 local diagnostics = Diagnostics.new({prefix='['..MOD_NAME..'] ',output=function(text) print(text..'\n') end})
 local function Log(message, ...) diagnostics.log(message, ...) end
 local function Debug(message, ...) diagnostics.debug(message, ...) end
@@ -206,7 +206,7 @@ local function RestoreBaseline()
         active.kind
     )
     if ok then
-        Log("Released timing override %.4f / %.4f", restoredBase, restoredCurrent)
+        diagnostics.info("Released timing override %.4f / %.4f", restoredBase, restoredCurrent)
     else
         error("Could not restore the parry baseline: "..tostring(reason))
     end
@@ -239,7 +239,7 @@ local function Attach(player, attributeSet)
         return false, writeReason
     end
 
-    Log(
+    diagnostics.info(
         "Applied x%.3f: ParryWindowMultiplier %.4f/%.4f -> %.4f/%.4f",
         config.factor,
         base,
@@ -376,7 +376,7 @@ if not LoadConfig() then return end
 diagnostics = Diagnostics.new({mutable=true,debugLogging=config.debugLogging,prefix='['..MOD_NAME..'] ',
     output=function(text) print(text..'\n') end,slowCallbackMs=5})
 if type(ExecuteInGameThreadWithDelay)~='function' or type(CancelDelayedAction)~='function' then
-    Log('Readiness requires game-thread one-shot scheduling and cancellation.'); return
+    diagnostics.error('Readiness requires game-thread one-shot scheduling and cancellation.'); return
 end
 Session.onClose(RestoreBaseline)
 -- Revoke one-use openings when a save session ends; no recurring work.
@@ -454,6 +454,7 @@ local loggingPending=false
 Session.onSettings(function(values,changes)
     local previous=config
     config=SettingsModel.convert(values)
+    diagnostics.setLevel(config.logLevel)
     if previous.debugLogging~=config.debugLogging then
         diagnostics.setEnabled(config.debugLogging)
         perf,queuedAt=nil,nil
@@ -475,4 +476,4 @@ Session.onSettings(function(values,changes)
 end)
 
 applyReady()
-Log("Loaded (enabled=%s, factor=%.3f, debug=%s). Use Mod Settings and Apply to update gameplay.", tostring(config.enabled), config.factor, tostring(config.debugLogging))
+diagnostics.info("Loaded (enabled=%s, factor=%.3f, debug=%s). Use Mod Settings and Apply to update gameplay.", tostring(config.enabled), config.factor, tostring(config.debugLogging))

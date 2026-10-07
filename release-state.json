@@ -60,10 +60,10 @@
         "VortexExtension"
       ],
       "pending": {
-        "impact": "patch",
-        "rationale": "Correct shipped dependency documentation and package version metadata; runtime behavior matches the published release.",
+        "impact": "minor",
+        "rationale": "Complete direct baseline delta reviewed. Retains preceding scope: Correct shipped dependency documentation and package version metadata; runtime behavior matches the published release. Adds compatible cumulative Logging Off/Error/Warning/Info/Debug, default Warning, preference migration and local unchanged-library output boundaries; native logging ABI coordinated with rebuilt DLLs. New option makes the full remaining delta minor.",
         "majorOverride": false,
-        "reviewedInputs": "91d362cb44f28960bd692849e3c012713c00e4f54df8486da3eb2f67df468420",
+        "reviewedInputs": "3fce6146acdd0ab9253ab90739c65dac5a56ca196b69a80ef0e248ba57612495",
         "divergenceReviewed": false
       }
     }

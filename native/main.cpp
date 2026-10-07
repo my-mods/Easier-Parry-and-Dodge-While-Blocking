@@ -6,23 +6,24 @@
 using namespace RC;
 using Lua=LuaMadeSimple::Lua;
 static_assert(sizeof(CppUserModBase)==192,"Unsupported UE4SS C++ host layout");
+static int nativeLogLevel=2;
 class EasierParryMod final:public CppUserModBase {
 public:
-    EasierParryMod(){ ModName=STR("Easier Parry and Dodge While Blocking");ModVersion=STR("1.4.1-dev");ModAuthors=STR("my-mods"); }
+    EasierParryMod(){ ModName=STR("Easier Parry and Dodge While Blocking");ModVersion=STR("1.5.0-dev");ModAuthors=STR("my-mods"); }
     void on_lua_start(StringViewType name,Lua& lua,Lua&,Lua&,Lua*) override {
         if(name!=STR("EasierParryUE4SS"))return;
-        lua.register_function("_EPRSet",[](const Lua& l){
+        lua.register_function("_EPRSetLogV2",[](const Lua& l){
             // get_integer removes the argument from the host Lua stack.
             // Each next setting is therefore at index 1.
             auto number=[&](int lo,int hi){return static_cast<int>(std::clamp<int64_t>(l.get_integer(1),lo,hi));};
             EasierParry::Settings s;
-            s.riposteDirection=number(0,2);s.debugLogging=number(0,1)!=0;
+            s.riposteDirection=number(0,2);s.logLevel=number(0,4);s.debugLogging=s.logLevel==4;nativeLogLevel=s.logLevel;
             EasierParry::configure(s);return 0;
         });
         lua.register_function("_EPRReset",[](const Lua&){EasierParry::reset();return 0;});
         lua.register_function("_EPRStart",[](const Lua& l){
             std::wstring error;bool ok=EasierParry::start(error);
-            if(!ok)Output::send(STR("[EasierParry] Disabled: ")+error+STR("\n"));
+            if(!ok&&nativeLogLevel>=1)Output::send(STR("[EasierParry] Disabled: ")+error+STR("\n"));
             l.set_bool(ok);return 1;
         });
     }

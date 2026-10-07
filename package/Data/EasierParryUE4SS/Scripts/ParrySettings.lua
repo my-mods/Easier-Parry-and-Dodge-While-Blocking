@@ -4,7 +4,7 @@ local backupSuffix = '.before-percentages'
 local legacySchema = {
     {key='enabled', default=1, values={0,1}},
     {key='factor', default=2, min=0.1, max=50},
-    {key='debugLogging', default=0, values={0,1}},
+    {key='logLevel', default=2, values={0,1,2,3,4}},
 }
 local function replace(store, path, original, updated, suffix)
     suffix = suffix or backupSuffix
@@ -32,7 +32,7 @@ local function replace(store, path, original, updated, suffix)
     return true
 end
 local function loadTiming(directory, schema, seed)
-    local Store = dofile(directory..'SettingsStore.lua')
+    local Store = dofile(directory..'ModSettingsStore.lua')
     local path = Store.path(directory)
     local text, err, code = Store.read(path)
     if not text then
@@ -71,7 +71,7 @@ local function loadTiming(directory, schema, seed)
 end
 
 local function loadAdded(directory, schema, seed, key, suffix, previous, initialValue)
-    local Store = dofile(directory..'SettingsStore.lua')
+    local Store = dofile(directory..'ModSettingsStore.lua')
     local path = Store.path(directory)
     local text, err, code = Store.read(path)
     if not text then
@@ -131,7 +131,7 @@ local function loadPerfectWindow(directory, schema, seed)
 end
 local function loadInvulnerability(directory, schema, seed)
     local key = 'dodgeInvulnerabilityWindowPercent'
-    local Store = dofile(directory..'SettingsStore.lua')
+    local Store = dofile(directory..'ModSettingsStore.lua')
     local text = Store.read(Store.path(directory))
     local initialValue
     if text then

@@ -23,7 +23,7 @@ local SetGuardTracing
 local lastFailure = nil
 
 local scriptDirectory = assert(SCRIPT_SOURCE:gsub('^@',''):match('^(.*[/\\])'))
-local Diagnostics = dofile(scriptDirectory .. 'UE4SSCommonDiagnostics.lua')
+local Diagnostics = dofile(scriptDirectory .. 'ModDiagnostics.lua')
 local diagnostics = Diagnostics.new({prefix='['..MOD_NAME..'] ',output=function(text) print(text..'\n') end})
 local function Log(message, ...) diagnostics.log(message, ...) end
 local function Debug(message, ...) diagnostics.debug(message, ...) end
@@ -96,7 +96,7 @@ local function ApplyIni(contents, path)
             end
         end
     end
-    Log("Loaded configuration from %s (factor=%.3f, enabled=%s)", path, config.factor, tostring(config.enabled))
+    diagnostics.info("Loaded configuration from %s (factor=%.3f, enabled=%s)", path, config.factor, tostring(config.enabled))
     return true
 end
 
@@ -104,6 +104,8 @@ local function LoadConfig()
     local directory = ScriptIniPath(''):gsub('[^/\\]*$', '')
     local Store = dofile(directory .. 'ParrySettings.lua')
     local schema = dofile(directory .. 'SettingsSchema.lua')
+    local ready,issue=dofile(directory..'LoggingSettings.lua').prepare(directory,schema)
+    if not ready then error(issue) end
     local values, err = Store.load(directory, schema, function()
         local defaults, de = ReadIni(ScriptIniPath(DEFAULTS_NAME))
         if not defaults then return nil, de end
@@ -114,17 +116,18 @@ local function LoadConfig()
         if not personal and pc == 2 then path = ScriptIniPath(INI_NAME); personal, pe, pc = ReadIni(path) end
         if not personal and pc ~= 2 then return nil, pe end
         if personal and not ApplyIni(personal, path) then return nil, "Invalid legacy INI; original left unchanged" end
-        return {enabled=config.enabled and 1 or 0, parryWindowPercent=config.factor*100, debugLogging=config.debugLogging and 1 or 0},
+        return {enabled=config.enabled and 1 or 0, parryWindowPercent=config.factor*100, logLevel=config.debugLogging and 4 or 2},
             nil, personal and {{path=path, text=personal}} or nil
     end)
-    if not values then Log('Settings rejected: %s', tostring(err)); return false end
+    if not values then error('Settings rejected: '..tostring(err)) end
+    ModDiagnosticLevel=values.logLevel
     return values
 end
 
 local M={load=LoadConfig}
 function M.convert(values)
     return {enabled=values.enabled==1,factor=values.parryWindowPercent/100,
-        debugLogging=values.debugLogging==1,dodgeWhileBlocking=values.dodgeWhileBlocking==1,
+        logLevel=values.logLevel,debugLogging=values.logLevel==4,dodgeWhileBlocking=values.dodgeWhileBlocking==1,
         dodgeWindowFactor=values.dodgeWindowPercent/100,
         dodgeInvulnerabilityFactor=values.dodgeInvulnerabilityWindowPercent/100}
 end

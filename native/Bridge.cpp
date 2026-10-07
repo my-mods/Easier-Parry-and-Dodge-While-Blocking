@@ -121,7 +121,7 @@ void reportMetrics() {
 }
 void riposteUnavailable(const std::wstring& reason) {
     riposteSupported=false;clearRipostes();
-    RC::Output::send(L"[EasierParry] Riposte direction unavailable: "+reason+L". Using vanilla openings; parry timing and dodge features remain available.\n");
+    if(settings.logLevel>=2)RC::Output::send(L"[EasierParry][WARN] Riposte direction unavailable: "+reason+L". Using vanilla openings; parry timing and dodge features remain available.\n");
 }
 void replaceReaction(void* attack) {
     auto target=field<void*>(attack,0x28);

@@ -11,7 +11,7 @@ function M.new(directory, report)
         ["dodgeWindowPercent"]="dodgeWindowPercent",
         ["dodgeInvulnerabilityWindowPercent"]="dodgeInvulnerabilityWindowPercent",
         ["riposteDirection"]="riposteDirection",
-        ["debugLogging"]="debugLogging"
+        ["logLevel"]="logLevel"
         }})
     local applyRiposte=dofile(directory..'RiposteSettings.lua').new(_G,report)
     local seed,attach=live.seed,live.attach
@@ -24,7 +24,11 @@ function M.new(directory, report)
         end)
     end
     live.start(function(id,callback)
-        return dofile(directory..'dmm_api.lua').subscribe(id,callback)
+        return dofile(directory..'ModDmmApi.lua').subscribe(id,function(values,...)
+            dofile(directory..'ModDiagnostics.lua').setLevel(values.logLevel)
+            local ok,err=pcall(callback,values,...)
+            if not ok and report then report('Settings callback failed: '..tostring(err)) end
+        end)
     end)
     return live
 end

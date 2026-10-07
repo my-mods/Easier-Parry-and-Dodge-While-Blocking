@@ -3,7 +3,8 @@
 #include <cmath>
 #include <cstdint>
 namespace EasierParry {
-struct Settings {int riposteDirection{1};bool debugLogging{};};
+struct Settings {int riposteDirection{1};int logLevel{2};
+    bool debugLogging{};};
 // Match the native attack-to-block conversion for cardinal hit directions.
 // Non-directional attacks retain vanilla selection; never call its RNG fallback.
 inline uint8_t parriedBlock(uint8_t attack) {

@@ -9,10 +9,10 @@ function M.new(api,report)
     end
     return function(values)
         if failed then return end
-        if not pending and values.riposteDirection==lastMode and values.debugLogging==lastLogging then return end
-        desired={values.riposteDirection,values.debugLogging}
+        if not pending and values.riposteDirection==lastMode and values.logLevel==lastLogging then return end
+        desired={values.riposteDirection,values.logLevel}
         if pending then return end
-        if type(api._EPRSet)~='function' or type(api._EPRStart)~='function' or type(api.ExecuteInGameThread)~='function' then
+        if type(api._EPRSetLogV2)~='function' or type(api._EPRStart)~='function' or type(api.ExecuteInGameThread)~='function' then
             fail('native helper or game-thread scheduler is missing');return
         end
         pending=true
@@ -20,7 +20,7 @@ function M.new(api,report)
             pending=false
             local nextValues=desired
             local applied,reason=pcall(function()
-                api._EPRSet(nextValues[1],nextValues[2])
+                api._EPRSetLogV2(nextValues[1],nextValues[2])
                 if not started then assert(api._EPRStart(),'native startup failed; see UE4SS.log');started=true end
                 lastMode,lastLogging=nextValues[1],nextValues[2]
             end)
