@@ -9,7 +9,7 @@ static_assert(sizeof(CppUserModBase)==192,"Unsupported UE4SS C++ host layout");
 static int nativeLogLevel=2;
 class EasierParryMod final:public CppUserModBase {
 public:
-    EasierParryMod(){ ModName=STR("Easier Parry and Dodge While Blocking");ModVersion=STR("1.5.0-dev");ModAuthors=STR("my-mods"); }
+    EasierParryMod(){ ModName=STR("Easier Parry and Dodge While Blocking");ModVersion=STR("1.5.0");ModAuthors=STR("my-mods"); }
     void on_lua_start(StringViewType name,Lua& lua,Lua&,Lua&,Lua*) override {
         if(name!=STR("EasierParryUE4SS"))return;
         lua.register_function("_EPRSetLogV2",[](const Lua& l){

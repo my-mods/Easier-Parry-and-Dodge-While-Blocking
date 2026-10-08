@@ -1,6 +1,8 @@
-## 1.4.0 — 2026-10-01
+## 1.5.0
 
 - Choose Off, Error, Warning, Info or Debug logging; Warning is the default.
+
+## 1.4.0 — 2026-10-01
 
 - Add independent Riposte direction choices: Vanilla (Random), Opposite direction (default), and Same direction.
 - Add an independent dodge invulnerability window from 25% to 5,000% for normal and fatigued side/back dodges, with normal duration at 100%.

@@ -61,9 +61,9 @@
       ],
       "pending": {
         "impact": "minor",
-        "rationale": "Complete direct baseline delta reviewed. Retains preceding scope: Correct shipped dependency documentation and package version metadata; runtime behavior matches the published release. Adds compatible cumulative Logging Off/Error/Warning/Info/Debug, default Warning, preference migration and local unchanged-library output boundaries; native logging ABI coordinated with rebuilt DLLs. New option makes the full remaining delta minor.",
+        "rationale": "Complete direct baseline delta reviewed. Retains preceding scope: Correct shipped dependency documentation and package version metadata; runtime behavior matches the published release. Adds compatible cumulative Logging Off/Error/Warning/Info/Debug, default Warning, preference migration and local unchanged-library output boundaries; native logging ABI coordinated with rebuilt DLLs. New option makes the full remaining delta minor. Release preparation: verified unchanged live Nexus baseline on 2026-10-08; consolidated complete player changelog and preserved published page formatting/history.",
         "majorOverride": false,
-        "reviewedInputs": "3fce6146acdd0ab9253ab90739c65dac5a56ca196b69a80ef0e248ba57612495",
+        "reviewedInputs": "e887a51e28191fca8333df137b21f446770ac95636af9ce3383177c4aedeab7b",
         "divergenceReviewed": false
       }
     }
