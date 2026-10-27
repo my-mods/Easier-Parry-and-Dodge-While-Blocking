@@ -8,20 +8,21 @@
       "packageFormat": 1,
       "baseline": {
         "kind": "nexus",
-        "version": "1.4.0",
-        "normalizedVersion": "1.4.0",
-        "sourceCommit": "77da982a948b6b6d03cac2c17ef77a542741cf88",
-        "sourceTag": "v1.4.0",
-        "archiveSha256": "5fea065004fe080be8c7786ebe402caa7c4995a8bc6fbebe338ca091a835ad97",
-        "verifiedAt": "2026-10-07T12:13:10.7045198Z",
+        "version": "1.5.0",
+        "normalizedVersion": "1.5.0",
+        "sourceCommit": "ab73d65ac0212ee68e07d43c036076bdbeba35fa",
+        "sourceTag": null,
+        "archiveSha256": "328dc0f50e699dc11972a57e11d928ed3a203887140eaa9f198bba8e309d573e",
+        "verifiedAt": "2026-10-08T11:28:43.8241143Z",
         "nexus": {
           "game": "thebloodofdawnwalker",
           "pageId": "161",
           "modId": "41742787149985",
           "fileChainId": "7914354",
-          "versionId": "41742787152806",
-          "siteFileId": "2982"
-        }
+          "versionId": "41742787152995",
+          "siteFileId": "3171"
+        },
+        "sourceFingerprint": "e887a51e28191fca8333df137b21f446770ac95636af9ce3383177c4aedeab7b"
       },
       "bindings": [
         {
@@ -60,10 +61,10 @@
         "VortexExtension"
       ],
       "pending": {
-        "impact": "minor",
-        "rationale": "Complete direct baseline delta reviewed. Retains preceding scope: Correct shipped dependency documentation and package version metadata; runtime behavior matches the published release. Adds compatible cumulative Logging Off/Error/Warning/Info/Debug, default Warning, preference migration and local unchanged-library output boundaries; native logging ABI coordinated with rebuilt DLLs. New option makes the full remaining delta minor. Release preparation: verified unchanged live Nexus baseline on 2026-10-08; consolidated complete player changelog and preserved published page formatting/history.",
+        "impact": "patch",
+        "rationale": "Patch 1.1 compatibility: rebased dodge preserving current stock behavior; updated riposte native fields, entry points and clock ABI; narrow semantic checks and dependency licenses. No settings changes.",
         "majorOverride": false,
-        "reviewedInputs": "e887a51e28191fca8333df137b21f446770ac95636af9ce3383177c4aedeab7b",
+        "reviewedInputs": "a502f3bfb4d80b04b0bc9b7c0bd9cd265a7c58215ef0b32f3082a5d10f05a17e",
         "divergenceReviewed": false
       }
     }

@@ -7,7 +7,7 @@
   {
     "type": "attribute",
     "key": "version",
-    "value": "1.5.0"
+    "value": "1.5.1-dev"
   },
   {
     "type": "attribute",
@@ -32,7 +32,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -53,7 +55,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -74,7 +78,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -95,7 +101,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -116,7 +124,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -137,7 +147,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -158,7 +170,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -179,7 +193,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -200,7 +216,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -221,7 +239,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -242,7 +262,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -263,7 +285,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -284,7 +308,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -305,7 +331,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -326,7 +354,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -347,7 +377,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -368,7 +400,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -389,7 +423,9 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   },
   {
@@ -410,7 +446,101 @@
       "BUILD.md",
       "LICENSES/MinHook.txt",
       "LICENSES/UE4SS.txt",
-      "LICENSES/fmt.txt"
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
+    ]
+  },
+  {
+    "type": "attribute",
+    "source": "LICENSES/Zydis.txt",
+    "key": "easierParryReleaseMaterials",
+    "value": [
+      "mod.manifest",
+      "README.txt",
+      "LICENSE.txt",
+      "CHANGELOG.md",
+      "RELEASE-NOTES.md",
+      "Data/Easier-Parry-UE4SS-PACKAGE-LAYOUT.txt",
+      "SETTINGS.md",
+      "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
+      "DMM-API-SOURCE.json",
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
+    ]
+  },
+  {
+    "type": "attribute",
+    "source": "LICENSES/Zycore.txt",
+    "key": "easierParryReleaseMaterials",
+    "value": [
+      "mod.manifest",
+      "README.txt",
+      "LICENSE.txt",
+      "CHANGELOG.md",
+      "RELEASE-NOTES.md",
+      "Data/Easier-Parry-UE4SS-PACKAGE-LAYOUT.txt",
+      "SETTINGS.md",
+      "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
+      "DMM-API-SOURCE.json",
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
+    ]
+  },
+  {
+    "type": "attribute",
+    "source": "LICENSES\\Zydis.txt",
+    "key": "easierParryReleaseMaterials",
+    "value": [
+      "mod.manifest",
+      "README.txt",
+      "LICENSE.txt",
+      "CHANGELOG.md",
+      "RELEASE-NOTES.md",
+      "Data/Easier-Parry-UE4SS-PACKAGE-LAYOUT.txt",
+      "SETTINGS.md",
+      "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
+      "DMM-API-SOURCE.json",
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
+    ]
+  },
+  {
+    "type": "attribute",
+    "source": "LICENSES\\Zycore.txt",
+    "key": "easierParryReleaseMaterials",
+    "value": [
+      "mod.manifest",
+      "README.txt",
+      "LICENSE.txt",
+      "CHANGELOG.md",
+      "RELEASE-NOTES.md",
+      "Data/Easier-Parry-UE4SS-PACKAGE-LAYOUT.txt",
+      "SETTINGS.md",
+      "LICENSES/EasierParryUE4SS-ue4ss-common.txt",
+      "DMM-API-SOURCE.json",
+      "ue4ss-common.lock.json",
+      "BUILD.md",
+      "LICENSES/MinHook.txt",
+      "LICENSES/UE4SS.txt",
+      "LICENSES/fmt.txt",
+      "LICENSES/Zydis.txt",
+      "LICENSES/Zycore.txt"
     ]
   }
 ]

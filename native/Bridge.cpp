@@ -2,6 +2,7 @@
 #include <Mod/CppUserModBase.hpp>
 #include <Unreal/UObjectArray.hpp>
 #include <Unreal/UObject.hpp>
+#include <Unreal/NameTypes.hpp>
 #include <DynamicOutput/Output.hpp>
 #include <Unreal/Core/Windows/AllowWindowsPlatformTypes.hpp>
 #include <Windows.h>
@@ -86,13 +87,13 @@ bool managed(void* combat) {
     if(!id.address)return false;
     if(ownerId.address!=id.address||ownerId.index!=id.index||(ownerId.serial&&ownerId.serial!=id.serial))clearSession();
     ownerId=id;session.watched[0]=id.index;
-    if(!(field<uint8_t>(combat,0x8e)&0x10)||field<uint8_t>(combat,0xb28)==10||field<uint8_t>(combat,0xb28)==11){clearRipostes();return false;}
+    if(!(field<uint8_t>(combat,0x8e)&0x10)||field<uint8_t>(combat,Build::CombatState)==10||field<uint8_t>(combat,Build::CombatState)==11){clearRipostes();return false;}
     return true;
 }
 double expireRipostes(void* combat) {
     // Read native gameplay time only at hit/query events; pause/dilation remain
     // native and no tick hook, background timer or settings watcher is needed.
-    const double now=at<double(*)(void*)>(Build::WorldTime)(combat);
+    const double now=at<float(*)(void*)>(Build::WorldTime)(combat);
     for(auto pending=riposteMask;pending;pending&=pending-1){
         const auto i=std::countr_zero(pending);const double age=now-ripostes[i].captured;
         if(!std::isfinite(now)||age<0||age>=1.0){if(settings.debugLogging)++metrics.expired;clearRiposte(i);}
@@ -142,7 +143,7 @@ void rememberRiposte(void* combat,void* attack) {
     const auto block=parriedBlock(field<uint8_t>(attack,0x18));
     if(!target||target==combat||riposteSide(block,settings.riposteDirection)<0)return;
     const auto targetId=identity(target);if(!targetId.address)return;
-    const auto stubId=identity(field<void*>(target,0x1070));if(!stubId.address)return;
+    const auto stubId=identity(field<void*>(target,Build::CombatStub));if(!stubId.address)return;
     const auto now=expireRipostes(combat);
     if(!std::isfinite(now))return;
     // A nested reaction may have recorded this enemy since our entry. Keep
@@ -160,7 +161,7 @@ void rememberRiposte(void* combat,void* attack) {
     session.riposteWatches.store(riposteMask,std::memory_order_release);
     if(settings.debugLogging){
         ++metrics.riposteParries;
-        if(field<uint8_t>(combat,0x960)!=block)++metrics.riposteGuardDrift;
+        if(field<uint8_t>(combat,Build::GuardDirection)!=block)++metrics.riposteGuardDrift;
     }
 }
 uint8_t resolveReaction(void* combat,uint8_t candidate,void* attackerWeapon) {
@@ -189,22 +190,24 @@ bool riposteGraph(void* frame) {
     if(!package||field<uint64_t>(package,0x18)!=Build::ripostePackageName)return false;
     auto script=field<uintptr_t>(node,0x60);
     // The original exec has consumed EX_EndFunctionParms before we inspect.
-    if(!parent||field<uint64_t>(parent,0x18)!=Build::riposteBaseName||!script||field<int>(node,0x68)!=RiposteScript::size||
-       field<uintptr_t>(frame,0x20)!=script+RiposteScript::queryEnd+1){
+    const auto cursor=field<uintptr_t>(frame,0x20);const auto length=field<int>(node,0x68);
+    if(!parent||field<uint64_t>(parent,0x18)!=Build::riposteBaseName||!script||length<0||
+       cursor<script||cursor-script<RiposteScript::prefixSize||cursor-script>static_cast<uintptr_t>(length)){
         riposteUnavailable(L"weak-spot task layout or query call site differs");return false;
     }
-    for(const auto& part:RiposteScript::bytes)if(std::memcmp(reinterpret_cast<void*>(script+part.offset),part.value,part.length)!=0){
+    const auto queryBase=cursor-(RiposteScript::queryEnd+1);
+    for(const auto& part:RiposteScript::bytes)if(std::memcmp(reinterpret_cast<void*>(queryBase+part.offset),part.value,part.length)!=0){
         riposteUnavailable(L"weak-spot direction branch differs at bytecode "+std::to_wstring(part.offset));return false;
     }
     for(size_t i=0;i<RiposteScript::objects.size();++i){
-        auto object=field<void*>(reinterpret_cast<void*>(script),RiposteScript::objects[i].offset);
+        auto object=field<void*>(reinterpret_cast<void*>(queryBase),RiposteScript::objects[i].offset);
         if(!object||field<uint64_t>(object,0x18)!=RiposteScript::names[i]){
             riposteUnavailable(L"weak-spot direction function or effect reference differs");return false;
         }
     }
     for(const auto& property:RiposteScript::properties){
-        const auto value=field<uintptr_t>(reinterpret_cast<void*>(script),property.offset);
-        if(!value||value!=field<uintptr_t>(reinterpret_cast<void*>(script),property.reference)){
+        const auto value=field<uintptr_t>(reinterpret_cast<void*>(queryBase),property.offset);
+        if(!value||value!=field<uintptr_t>(reinterpret_cast<void*>(queryBase),property.reference)){
             riposteUnavailable(L"weak-spot direction variable binding differs");return false;
         }
     }
@@ -223,7 +226,7 @@ void applyRiposte(void* combat,void* frame,void* result) {
         const auto entry=ripostes[i];
         if(entry.stub.address!=reinterpret_cast<uintptr_t>(stub))continue;
         auto enemy=resolveAttacker(entry.combat);
-        const bool valid=enemy&&resolveAttacker(entry.stub)==stub&&field<void*>(enemy,0x1070)==stub&&field<uint8_t>(enemy,0xb28)!=10;
+        const bool valid=enemy&&resolveAttacker(entry.stub)==stub&&field<void*>(enemy,Build::CombatStub)==stub&&field<uint8_t>(enemy,Build::CombatState)!=10;
         clearRiposte(i); // Consume before publishing; repeated queries stay native.
         const auto side=riposteSide(entry.block,settings.riposteDirection);
         if(valid&&side>=0){*static_cast<uint64_t*>(result)=Build::riposteTags[side];applied=true;}
@@ -295,33 +298,10 @@ bool start(std::wstring& error) {
     if(attempted){error=startError;return installed;}attempted=true;
     gameThread=GetCurrentThreadId();moduleBase=reinterpret_cast<uintptr_t>(GetModuleHandleW(nullptr));
     try {
-        NativeCompatibility::validateContract(moduleBase,Build::code,Build::pointers);
-                    const auto prop=Build::TaskOwnerProperty;
-            if(!NativeCompatibility::accessible(moduleBase,prop,64)||
-               field<uint32_t>(at<void*>(prop),0x32)!=0x28||
-               !NativeCompatibility::accessible(moduleBase,0x8d43a10,12)||
-               field<uintptr_t>(at<void*>(prop),0)!=moduleBase+0x8d43a10||
-               std::memcmp(at<void*>(0x8d43a10),"OwnerAIStub",12)!=0)
-               throw std::runtime_error("Weak-spot task OwnerAIStub property layout differs");
-            if(!NativeCompatibility::accessible(moduleBase,0x8e15780,64)||
-               field<uint32_t>(at<void*>(0x8e15780),0x32)!=0x1070||
-               !NativeCompatibility::accessible(moduleBase,0x8d3ebbc,7)||
-               field<uintptr_t>(at<void*>(0x8e15780),0)!=moduleBase+0x8d3ebbc||
-               std::memcmp(at<void*>(0x8d3ebbc),"AIStub",7)!=0)
-                throw std::runtime_error("Enemy combat AIStub property layout differs");
-            const uintptr_t blockNames[]{0x92f5b70,0x92f5b88,0x92f5b30,0x92f5b50};
-            const char* blockText[]{"EBlockingDirection::Top","EBlockingDirection::Bottom","EBlockingDirection::Left","EBlockingDirection::Right"};
-            if(!NativeCompatibility::accessible(moduleBase,0x92f8600,64))throw std::runtime_error("Blocking direction enum is unavailable");
-            for(size_t i=0;i<4;++i){
-                const auto length=std::strlen(blockText[i])+1;
-                auto entry=at<void*>(0x92f8600+i*16);
-                if(!NativeCompatibility::accessible(moduleBase,blockNames[i],length)||
-                   field<uintptr_t>(entry,0)!=moduleBase+blockNames[i]||field<uint64_t>(entry,8)!=(1ull<<i)||
-                   std::memcmp(at<void*>(blockNames[i]),blockText[i],length)!=0)
-                    throw std::runtime_error("Blocking direction enum value differs");
-            }
+        Build::validate(moduleBase);
             auto name=[](uint64_t& value,const char* text){
-                at<void(*)(uint64_t*,const char*,int)>(Build::MakeName)(&value,text,1);
+                std::string input(text);std::wstring wide(input.begin(),input.end());
+                FName resolved(wide.c_str());value=uint64_t(resolved.GetComparisonIndex().ToUnstableInt())|(uint64_t(uint32_t(resolved.GetNumber()))<<32);
                 if(!value)throw std::runtime_error("Required weak-spot name is unavailable");
             };
             name(Build::riposteGraphName,"ExecuteUbergraph_LTT_AddWeakSpot");

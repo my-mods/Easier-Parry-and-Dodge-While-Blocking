@@ -1,25 +1,30 @@
 {
   "game": "The Blood of Dawnwalker",
-  "steamBuild": "25129649",
-  "changelist": 257186,
-  "unrealEngine": "5.5.4",
-  "snapshotDate": "2026-09-06",
   "source": "Locally installed stock Dawnwalker-Windows IoStore containers, exported as unversioned UE5.5 UAssetAPI JSON",
-  "sourceUtocSha256": "7cf811c2a52e0f56ed9dc385168d1d871519ba99664eb18ced895c9ce14bc614",
-  "executableSha256": "7ad7d09645b0589dc0ff78b53aa1a7b18eca79b1b7f888b403ab41d88ac7e853",
   "rights": "Underlying game assets remain the property of their respective rights holders. The MIT license applies to original mod code.",
   "assets": [
     {
       "snapshot": "GA_Input_CombatBlock.json",
       "package": "/Game/_Dawnwalker/Player/Abilities/Input/GA_Input_CombatBlock",
       "sha256": "422accd0648e3afec1c67cbd7f7a0deb8eaa31a1914c7d1a5b2cecebd8b3cf77",
-      "modification": "None. Stock reference only; GA_Input_CombatBlock is not included in the mod container."
+      "modification": "None. Stock reference only; GA_Input_CombatBlock is not included in the mod container.",
+      "steamBuild": "25129649",
+      "changelist": 257186,
+      "unrealEngine": "5.5.4",
+      "snapshotDate": "2026-09-06",
+      "sourceUtocSha256": "7cf811c2a52e0f56ed9dc385168d1d871519ba99664eb18ced895c9ce14bc614",
+      "executableSha256": "7ad7d09645b0589dc0ff78b53aa1a7b18eca79b1b7f888b403ab41d88ac7e853"
     },
     {
       "snapshot": "GA_Dodge.json",
       "package": "/Game/_Dawnwalker/Combat/Abilities/Dodge/GA_Dodge",
-      "sha256": "c73030365aee0975f1a55b931543e2acd1f8300a7e06b760cf5acb1fbe70335f",
-      "modification": "Add Player.Input.BlockTagAbilities to ActivationOwnedTags; native state/timer guard recovery and cleanup while the tag is present. Four guarded branch destinations restore stock graph paths when the player setting removes that tag. Other executable exports remain unchanged."
+      "sha256": "d3e1967dc71ac3ada00f940caf4b86bc4f7ad0b8b6b21f59394c297606845ceb",
+      "modification": "Add Player.Input.BlockTagAbilities to ActivationOwnedTags; native state/timer guard recovery and cleanup while the tag is present. Four guarded branch destinations restore stock graph paths when the player setting removes that tag. Other executable exports remain unchanged.",
+      "steamBuild": "25915545",
+      "unrealEngine": "5.5.4",
+      "snapshotDate": "2026-10-27",
+      "executableSha256": "e6222b815b1c376f2c85a2189120c5a9b5cd30ac5688a34b61a2c18efbc9b117",
+      "sourceUtocSha256": "3f2813832120cd594c29176d46320be48cbb51281199bd88929e683907a3401c"
     }
   ]
 }

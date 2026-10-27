@@ -25,7 +25,12 @@ FetchContent_Declare(imgui GIT_REPOSITORY https://github.com/ocornut/imgui.git
 FetchContent_Declare(textedit GIT_REPOSITORY https://github.com/UE4SS-RE/ImGuiColorTextEdit.git
     GIT_TAG 6d943aba9f7cef05da80b86dbb0253b63818f95c SOURCE_SUBDIR headers_only)
 FetchContent_Declare(zydis GIT_REPOSITORY https://github.com/zyantific/zydis.git
-    GIT_TAG a2278f1d254e492f6a6b39f6cb5d1f5d515659dc GIT_SUBMODULES dependencies/zycore SOURCE_SUBDIR headers_only)
+    GIT_TAG a2278f1d254e492f6a6b39f6cb5d1f5d515659dc GIT_SUBMODULES dependencies/zycore)
+set(ZYDIS_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(ZYDIS_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+set(ZYDIS_FEATURE_ENCODER OFF CACHE BOOL "" FORCE)
+set(ZYDIS_FEATURE_FORMATTER OFF CACHE BOOL "" FORCE)
+set(ZYDIS_BUILD_DOXYGEN OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(fmt imgui textedit zydis)
 set(ZYCORE_INCLUDE "${zydis_SOURCE_DIR}/dependencies/zycore/include" CACHE PATH "Zycore headers pinned by Zydis")
 file(GLOB first_includes LIST_DIRECTORIES true "${UE4SS_SDK}/deps/first/*/include")
@@ -47,5 +52,5 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/Framecore2b.lib"
     DEPENDS Framecore2b.def VERBATIM)
 add_custom_target(FramecoreImports DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/Framecore2b.lib")
 add_dependencies(EasierParryNative FramecoreImports)
-target_link_libraries(EasierParryNative PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Framecore2b.lib" bcrypt kernel32 minhook)
+target_link_libraries(EasierParryNative PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Framecore2b.lib" kernel32 minhook Zydis)
 target_link_options(EasierParryNative PRIVATE /Brepro /OPT:REF /OPT:ICF /MAP)

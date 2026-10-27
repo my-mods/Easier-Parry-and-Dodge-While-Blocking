@@ -71,3 +71,5 @@ EXPORTS
 ?set_nil@Lua@LuaMadeSimple@RC@@QEBAXXZ
 ?set_number@Lua@LuaMadeSimple@RC@@QEBAXN@Z
 ?get_integer@Lua@LuaMadeSimple@RC@@QEBA_JH@Z
+
+??0FName@Unreal@RC@@QEAA@PEB_WW4EFindName@12@PEAX@Z

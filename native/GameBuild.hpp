@@ -1,33 +1,133 @@
+// Patch 1.1 entry and layout evidence. These are operation contracts, not a game-version allowlist.
 #pragma once
 #include "CodeCompatibility.hpp"
 namespace EasierParry::Build {
-inline constexpr uintptr_t ResolveReaction=0x5dff468;
-inline constexpr uintptr_t ResolveReactionReturn=0x5e01a38;
-inline constexpr uintptr_t ReactToHit=0x5e1c800;
-inline constexpr uintptr_t RiposteQuery=0x5dd5890;
-inline constexpr uintptr_t QueueAttack=0x5e1c058;
-inline constexpr uintptr_t OnDodge=0x5e18ba8;
-inline constexpr uintptr_t TaskOwnerProperty=0x8ca04d0;
+inline constexpr uintptr_t ResolveReaction=0x6025600, ReactToHit=0x6042f18, RiposteQuery=0x5ffaaf4, QueueAttack=0x6042770, OnDodge=0x603f294;
+inline uintptr_t ResolveReactionReturn=0x6027c02;
+inline constexpr uintptr_t PlayerCombatVtable=0x805c1c0, ReactSlot=PlayerCombatVtable+0x8e8, WorldTime=0x5ea8960;
+inline constexpr size_t CombatState=0xb40, CombatStub=0x1088, GuardDirection=0x978;
 inline uint64_t riposteGraphName{},riposteClassName{},ripostePackageName{},riposteBaseName{};
 inline std::array<uint64_t,4> riposteTags{};
-inline constexpr uintptr_t PlayerCombatVtable=0x7d64078;
-inline constexpr uintptr_t MakeName=0x13512bc;
-inline constexpr uintptr_t WorldTime=0x5047f14, ReactSlot=PlayerCombatVtable+0x8e8;
-// Reference: Steam 25232147. Hash only functions/layouts this feature uses.
-inline constexpr std::array<NativeCompatibility::Code,13> code{{
-{0x5dd5890,87,"2ff82a31983d7af5033b74a28a96bbc377b9d89241a96b5b327178e3e8c1c301"},
-{0x5e1c058,190,"2e63adda340c572121eb27f7ca4fc2b3c2000372d66764fd89de54d3b144384b"},
-{0x5e18ba8,299,"e1cd5a3138f36c89e73f36091bb8f15a3856d9df82485947f0f9ee15981c0722"},
-{0x5dd74de,17,"88df69ac95184dc2c614b9f83be91f4b79f581414156f0bbfa4c8bd68dc6f67c"},
-{0x28879ac,43,"0a26234bc9f2f603f2dcd517fd2b50db5fca9d04c275a848dac97d63590d21ba"},
-{0x5e12ca4,85,"cb75a89693f977b53aadab41626fd8f843d0f8b681556376ca2ac0d344381794"},
-{0x13512bc,317,"9b5feb9eca626d5851bb2351844a7da12720c9dc7528052b37bf28761cdb2aae"},
-{0x5e1c805,1065,"a929ed6fd4259012e29b88f9a9e8c734cd034a2e1f83302fccdb3fe5b11d5b1d"},
-{0x5047f14,41,"efb6cd23625e342ed2e75a1ab24e9587d137d758ddb0330ae14b08b0d43a3ca0"},
-{0x113b1b0,95,"28ec1aac6ae9a0e3b75f7c895ac556494238aaea2bb8bdc55c96063ad74b8a7e"},
-{0x118cb1c,119,"1531a1b3ebfeabdb2b7ebe5d7378f1debdbee9b4a00249f5e08e2e75a667f5ae"},
-{0x5dff468,96,"97e3461110b2eafebd1805c414942e05b8a27867f717d0d1be6e7595a3daed0d"},
-{0x5e011dc,3762,"cc2991c11ff874ca618c9c35c38efda1c25311ef11f8517c720c2026c8dd32d5"},
+inline const NativeCompatibility::Check query_args{0x5ffaaf4,"query result pointer and FFrame code advance", {
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RBX,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_R8,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_CMP,2,{{{ZYDIS_OPERAND_TYPE_MEMORY,0,ZYDIS_REGISTER_RDX,ZYDIS_REGISTER_NONE,32,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RAX,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RDI,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RCX,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_SETNZ,1,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_AL,0,0,0,8}}}},
+    {ZYDIS_MNEMONIC_ADD,2,{{{ZYDIS_OPERAND_TYPE_MEMORY,0,ZYDIS_REGISTER_RDX,ZYDIS_REGISTER_NONE,32,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RAX,0,0,0,64}}}}
 }};
-inline constexpr std::array<NativeCompatibility::Pointer,2> pointers{{{ReactSlot,ReactToHit},{PlayerCombatVtable+0x198,0x118cb1c}}};
+inline const NativeCompatibility::Check query_result{0x5ffaaf4,"query writes the eight-byte tag result", {
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_MEMORY,0,ZYDIS_REGISTER_RBX,ZYDIS_REGISTER_NONE,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RAX,0,0,0,64}}}}
+}};
+inline const NativeCompatibility::Check queue_owner{0x5ffc220,"queue wrapper preserves owner argument", {
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RSI,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RCX,0,0,0,64}}}}
+}};
+inline const NativeCompatibility::Check queue_call{0x5ffc220,"queue wrapper forwards owner and tag container", {
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RDX,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RAX,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RCX,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RSI,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_CALL,1,{{{ZYDIS_OPERAND_TYPE_IMMEDIATE,0,0,0,100935536,64}}}}
+}};
+inline const NativeCompatibility::Check queue_result{0x5ffc220,"queue wrapper consumes byte return", {
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_MEMORY,0,ZYDIS_REGISTER_RDI,ZYDIS_REGISTER_NONE,0,8},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_AL,0,0,0,8}}}}
+}};
+inline const NativeCompatibility::Check dodge_owner{0x5ffb598,"dodge wrapper preserves owner argument", {
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RSI,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RCX,0,0,0,64}}}}
+}};
+inline const NativeCompatibility::Check dodge_call{0x5ffb598,"dodge wrapper forwards tag reference", {
+    {ZYDIS_MNEMONIC_LEA,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RDX,0,0,0,64},{ZYDIS_OPERAND_TYPE_MEMORY,0,ZYDIS_REGISTER_RSP,ZYDIS_REGISTER_NONE,56,64}}}},
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RCX,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RSI,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_CMOVNZ,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RDX,0,0,0,64},{ZYDIS_OPERAND_TYPE_MEMORY,0,ZYDIS_REGISTER_RBX,ZYDIS_REGISTER_NONE,56,64}}}},
+    {ZYDIS_MNEMONIC_CMP,2,{{{ZYDIS_OPERAND_TYPE_MEMORY,0,ZYDIS_REGISTER_RBX,ZYDIS_REGISTER_NONE,32,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RDI,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_SETNZ,1,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_DIL,0,0,0,8}}}},
+    {ZYDIS_MNEMONIC_ADD,2,{{{ZYDIS_OPERAND_TYPE_MEMORY,0,ZYDIS_REGISTER_RBX,ZYDIS_REGISTER_NONE,32,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RDI,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_CALL,1,{{{ZYDIS_OPERAND_TYPE_IMMEDIATE,0,0,0,100922004,64}}}}
+}};
+inline const NativeCompatibility::Check hit_arguments{0x6042f18,"player reaction forwards attack and response to base reaction", {
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_R9,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_R15,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_R8,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_R14,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RDX,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RDI,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RCX,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RSI,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RBX,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RAX,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_CALL,1,{{{ZYDIS_OPERAND_TYPE_IMMEDIATE,0,0,0,100823956,64}}}}
+}};
+inline const NativeCompatibility::Check base_owner{0x6027394,"base reaction owner identity", {
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RDI,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RCX,0,0,0,64}}}}
+}};
+inline const NativeCompatibility::Check base_attack{0x6027394,"base reaction attack argument", {
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_R15,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_R8,0,0,0,64}}}}
+}};
+inline const NativeCompatibility::Check base_response{0x6027394,"base reaction response output", {
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_R12,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_R9,0,0,0,64}}}}
+}};
+inline const NativeCompatibility::Check resolved_call{0x6027394,"resolved reaction owner, candidate byte and weapon arguments", {
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_R8,0,0,0,64},{ZYDIS_OPERAND_TYPE_MEMORY,0,ZYDIS_REGISTER_R15,ZYDIS_REGISTER_NONE,48,64}}}},
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RCX,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RDI,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_DL,0,0,0,8},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_AL,0,0,0,8}}}},
+    {ZYDIS_MNEMONIC_CALL,1,{{{ZYDIS_OPERAND_TYPE_IMMEDIATE,0,0,0,100816384,64}}}}
+}};
+inline const NativeCompatibility::Check outcome_branch{0x6027394,"resolved result two selects the parry branch", {
+    {ZYDIS_MNEMONIC_MOVZX,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_ECX,0,0,0,32},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_AL,0,0,0,8}}}},
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_MEMORY,0,ZYDIS_REGISTER_RSP,ZYDIS_REGISTER_NONE,33,8},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_CL,0,0,0,8}}}},
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_EDX,0,0,0,32},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_ECX,0,0,0,32}}}},
+    {ZYDIS_MNEMONIC_TEST,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_AL,0,0,0,8},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_AL,0,0,0,8}}}},
+    {ZYDIS_MNEMONIC_JZ,1,{{{ZYDIS_OPERAND_TYPE_IMMEDIATE,0,0,0,INT64_MIN,64}}}},
+    {ZYDIS_MNEMONIC_SUB,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_EDX,0,0,0,32},{ZYDIS_OPERAND_TYPE_IMMEDIATE,0,0,0,1,32}}}},
+    {ZYDIS_MNEMONIC_JZ,1,{{{ZYDIS_OPERAND_TYPE_IMMEDIATE,0,0,0,INT64_MIN,64}}}},
+    {ZYDIS_MNEMONIC_SUB,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_EDX,0,0,0,32},{ZYDIS_OPERAND_TYPE_IMMEDIATE,0,0,0,1,32}}}},
+    {ZYDIS_MNEMONIC_JZ,1,{{{ZYDIS_OPERAND_TYPE_IMMEDIATE,0,0,0,INT64_MIN,64}}}}
+}};
+inline const NativeCompatibility::Check parry_output{0x6027394,"parry branch selects owner parry response before enemy notification", {
+    {ZYDIS_MNEMONIC_LEA,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RDX,0,0,0,64},{ZYDIS_OPERAND_TYPE_MEMORY,0,ZYDIS_REGISTER_RDI,ZYDIS_REGISTER_NONE,616,64}}}},
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RCX,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_R12,0,0,0,64}}}}
+}};
+inline const NativeCompatibility::Check resolver_arguments{0x6025600,"resolver receives weapon, byte candidate and owner", {
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RSI,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_R8,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_BL,0,0,0,8},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_DL,0,0,0,8}}}},
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RDI,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RCX,0,0,0,64}}}}
+}};
+inline const NativeCompatibility::Check clock_context{0x5ea8960,"game-clock context ABI", {
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_R8D,0,0,0,32},{ZYDIS_OPERAND_TYPE_IMMEDIATE,0,0,0,1,32}}}},
+    {ZYDIS_MNEMONIC_MOV,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RDX,0,0,0,64},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_RCX,0,0,0,64}}}},
+    {ZYDIS_MNEMONIC_CALL,1,{{{ZYDIS_OPERAND_TYPE_IMMEDIATE,0,0,0,20832096,64}}}}
+}};
+inline const NativeCompatibility::Check clock_load{0x5ea8960,"game-clock gameplay-time field", {
+    {ZYDIS_MNEMONIC_MOVSD,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_XMM0,0,0,0,128},{ZYDIS_OPERAND_TYPE_MEMORY,0,ZYDIS_REGISTER_RAX,ZYDIS_REGISTER_NONE,1744,64}}}}
+}};
+inline const NativeCompatibility::Check clock_result{0x5ea8960,"game-clock float return ABI", {
+    {ZYDIS_MNEMONIC_CVTPD2PS,2,{{{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_XMM0,0,0,0,128},{ZYDIS_OPERAND_TYPE_REGISTER,ZYDIS_REGISTER_XMM0,0,0,0,128}}}}
+}};
+inline void validate(uintptr_t image){
+using namespace NativeCompatibility;
+activeBit(image);
+direction(image,0x95adb70,"EBlockingDirection::Top",1);
+direction(image,0x95adb80,"EBlockingDirection::Bottom",2);
+direction(image,0x95adb90,"EBlockingDirection::Left",4);
+direction(image,0x95adba0,"EBlockingDirection::Right",8);
+namedPointer(image,0x80af290,"GetDirectionRequiredForCombo",RiposteQuery);
+namedPointer(image,0x80af410,"QueueAttack",0x5ffc220);
+namedPointer(image,0x80af3a0,"OnDodge",0x5ffb598);
+pointer(image,ReactSlot,ReactToHit,"Riposte player ReactToHit virtual slot differs");
+property(image,0x90d3aa0,"CurrentState",CombatState);
+property(image,0x90d37e0,"BlockingDirection",GuardDirection);
+property(image,0x90d3fa0,"AIStub",CombatStub);
+property(image,0x8f5a1b0,"OwnerAIStub",0x28);
+require(image,query_args);
+require(image,query_result);
+require(image,queue_owner);
+require(image,queue_call);
+require(image,queue_result);
+require(image,dodge_owner);
+require(image,dodge_call);
+require(image,hit_arguments);
+require(image,base_owner);
+require(image,base_attack);
+require(image,base_response);
+ResolveReactionReturn=require(image,resolved_call);
+uintptr_t parryBranch{},parryOutput{};require(image,outcome_branch,nullptr,&parryBranch);
+require(image,parry_output,&parryOutput);
+if(parryOutput<parryBranch||parryOutput-parryBranch>15)throw std::runtime_error("Riposte result two no longer selects the parry response");
+require(image,resolver_arguments);
+require(image,clock_context);
+require(image,clock_load);
+require(image,clock_result);
+}
 }

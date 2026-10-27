@@ -1,6 +1,6 @@
 {
   "name": "Easier Parry and Dodge While Blocking",
-  "version": "1.5.0",
+  "version": "1.5.1-dev",
   "game": "The Blood of Dawnwalker",
   "nexusDomain": "thebloodofdawnwalker",
   "summary": "Configurable parry timing with guard recovery after dodging and base-game attack behavior.",
@@ -25,7 +25,7 @@
   ],
   "fileName": "Easier-Parry-and-Dodge-While-Blocking.zip",
   "fileDisplayName": "Easier Parry and Dodge While Blocking",
-  "fileDescription": "Adds configurable riposte direction and dodge invulnerability duration.",
+  "fileDescription": "Update dodge while blocking and riposte direction for game patch 1.1, preserving its dodge timing and forward-dodge changes.",
   "sourceUrl": "https://github.com/my-mods/Easier-Parry-and-Dodge-While-Blocking",
   "nexusModId": 161,
   "nexusFileId": null,
