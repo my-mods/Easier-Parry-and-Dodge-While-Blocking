@@ -64,7 +64,7 @@
         "impact": "patch",
         "rationale": "Patch 1.1 compatibility: rebased dodge preserving current stock behavior; updated riposte native fields, entry points and clock ABI; narrow semantic checks and dependency licenses. No settings changes.",
         "majorOverride": false,
-        "reviewedInputs": "52e5d7ed8eaeb967284afc4dddeba5bc82f8e334ff5f44aed42682d8bfec24ad",
+        "reviewedInputs": "0ed095d136e628c5778254c1573c928047dbab32261b4b69db7a5e0c57a0651d",
         "divergenceReviewed": false
       }
     }
